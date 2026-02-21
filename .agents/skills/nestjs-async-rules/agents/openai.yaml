@@ -1,0 +1,4 @@
+interface:
+  display_name: "NestJS Async Rules"
+  short_description: "Async execution policy and safety skill"
+  default_prompt: "Apply nestjs-async-rules as an embedded policy skill and enforce its workflow and prohibitions on the task."

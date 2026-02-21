@@ -1,0 +1,4 @@
+interface:
+  display_name: "Rules-to-Skills Migration"
+  short_description: "Rule hierarchy to skill migration workflow"
+  default_prompt: "Analyze .agents/rules, preserve hierarchy and roles, and scaffold .agents/skills migration outputs."

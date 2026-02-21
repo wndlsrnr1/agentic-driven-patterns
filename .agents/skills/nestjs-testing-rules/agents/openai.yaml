@@ -1,0 +1,4 @@
+interface:
+  display_name: "NestJS Testing Rules"
+  short_description: "Testing execution policy rules skill"
+  default_prompt: "Apply nestjs-testing-rules as an embedded policy skill and enforce its workflow and prohibitions on the task."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "NestJS Domain Model Rules"
+  short_description: "Domain model execution policy skill"
+  default_prompt: "Apply nestjs-domain-model-rules as an embedded policy skill and enforce its workflow and prohibitions on the task."

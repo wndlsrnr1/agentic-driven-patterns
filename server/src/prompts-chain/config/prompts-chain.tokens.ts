@@ -1,0 +1,1 @@
+export const PROMPTS_CHAIN_RUNTIME = Symbol('PROMPTS_CHAIN_RUNTIME');

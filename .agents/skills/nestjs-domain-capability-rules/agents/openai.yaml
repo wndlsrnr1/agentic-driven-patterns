@@ -1,0 +1,4 @@
+interface:
+  display_name: "NestJS Domain Capability Rules"
+  short_description: "Domain capability execution policy"
+  default_prompt: "Apply nestjs-domain-capability-rules as an embedded policy skill and enforce its workflow and prohibitions on the task."

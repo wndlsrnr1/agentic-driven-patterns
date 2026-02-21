@@ -1,0 +1,4 @@
+interface:
+  display_name: "NestJS Service Rules"
+  short_description: "Service layer execution policy skill"
+  default_prompt: "Apply nestjs-service-rules as an embedded policy skill and enforce its workflow and prohibitions on the task."

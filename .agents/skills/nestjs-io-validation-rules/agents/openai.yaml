@@ -1,0 +1,4 @@
+interface:
+  display_name: "NestJS Io Validation Rules"
+  short_description: "Boundary validation execution skill"
+  default_prompt: "Apply nestjs-io-validation-rules as an embedded policy skill and enforce its workflow and prohibitions on the task."

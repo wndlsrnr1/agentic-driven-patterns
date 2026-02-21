@@ -1,0 +1,23 @@
+# Node modules
+node_modules/
+
+# Environment
+.env
+.env.local
+
+# Build outputs
+client/dist/
+server/dist/
+server/dist-local/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/
+
+# TypeScript incremental cache
+*.tsbuildinfo
