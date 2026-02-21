@@ -21,3 +21,7 @@ npm-debug.log*
 
 # TypeScript incremental cache
 *.tsbuildinfo
+
+
+#example
+example
