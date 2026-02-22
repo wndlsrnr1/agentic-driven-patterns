@@ -12,7 +12,6 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:prod": "node dist-local/main.js",
-    "prompts-chain:example": "node --env-file=src/config/.env --loader ts-node/esm src/prompts-chain/example/example.ts",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
     "typecheck": "tsc --noEmit"

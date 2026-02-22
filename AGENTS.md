@@ -10,6 +10,15 @@ If this line is missing, do not answer and retry internally.
 **Type:** Multi-service Monorepo (Meeting Minutes System)
 
 [text](AGENTS.md)
+
+## Self-Improvement Loop
+
+- Review `.sisyphus/lessons.md` at session start for relevant project
+- After ANY correction from the user: update `.sisyphus/lessons.md` with the pattern
+- Write rules for yourself that prevent the same mistake
+- Ruthlessly iterate on these lessons until mistake rate drops
+- keep `.sisyphus/lessons.md` under 200 lines
+
 ## When plans
 
 Before creating a plan, invoke the `writing-plans` skill. When implementing the plan, invoke the `execute-plans` skill.
@@ -18,7 +27,42 @@ When executing `writing-plans`, map all required skills in advance based on the 
 
 ## Code Style
 
-All code must follow OOP, DDD, Clean Code, and Effective Software Design principles. Prioritize domain model clarity, separation of responsibilities, readability, and maintainability over language/framework-specific idioms.
+All code must follow OOP, DDD, Clean Code, explicit return type annotation, human-readable and Effective Software Design principles. Prioritize domain model clarity, separation of responsibilities, readability, and maintainability over language/framework-specific idioms.
+
+## Strict Explicit Typing Policy
+
+- 공통 원칙:
+  - 메서드 및 모든 함수 작성 시 매개변수/반환 타입을 반드시 명시한다.
+  - 변수/상수 선언 시 쉬운 타입이라도 반드시 명시한다.
+  - 예시: `const hi: string = "hi"`
+
+- Python:
+  - 모든 함수/메서드에 타입 힌트와 반환 타입(`-> ...`)을 명시한다.
+  - 생성자 타입 명시를 강제한다.
+    - `__init__(...) -> None`
+    - `__new__(...) -> Self` (필요 시 구체 클래스 타입)
+
+- TypeScript:
+  - 모든 함수/메서드(`async` 포함) 매개변수/반환 타입을 명시한다.
+  - 변수/상수 타입 명시를 강제한다(추론 가능해도 생략 금지).
+  - `constructor`는 언어 문법상 반환 타입 표기가 불가하므로, 매개변수 타입/접근제어자 프로퍼티 타입/클래스 필드 타입을 명시한다.
+  - 생성자 반환 동작에 대한 암묵 의존을 금지한다.
+
+## Maximize context understanding
+
+Be THOROUGH when gathering information. Make sure you have the FULL picture before replying. Use additional tool calls or clarifying questions as needed.
+TRACE every symbol back to its definitions and usages so you fully understand it.
+Look past the first seemingly relevant result. EXPLORE alternative implementations, edge cases, and varied search terms until you have COMPREHENSIVE coverage of the topic.
+
+Semantic search is your MAIN exploration tool.
+
+- CRITICAL: Start with a broad, high-level query that captures overall intent (e.g. "authentication flow" or "error-handling policy"), not low-level terms.
+- Break multi-part questions into focused sub-queries (e.g. "How does authentication work?" or "Where is payment processed?").
+- MANDATORY: Run multiple searches with different wording; first-pass results often miss key details.
+- Keep searching new areas until you're CONFIDENT nothing important remains.
+- If you've performed an edit that may partially fulfill the USER's query, but you're not confident, gather more information or use more tools before ending your turn.
+
+Bias towards not asking the user for help if you can find the answer yourself.
 
 ## Project Structure & Module Organization
 
@@ -38,8 +82,8 @@ All code must follow OOP, DDD, Clean Code, and Effective Software Design princip
 
 ## Build, Test, and Development Commands
 
-
 ## Coding Style & Naming Conventions
+
 - TypeScript/React: 2-space indentation; `PascalCase` for components (`ConfirmModal.tsx`), `camelCase` for hooks/utilities (`useMeetings.ts`), and grouped folders by feature or layer.
 - Follow existing file naming patterns and keep module boundaries clear (`controller` -> `service` -> `repository`).
 - No dedicated lint script is currently defined; rely on TypeScript checks, tests, and consistent existing style.
@@ -56,16 +100,18 @@ All code must follow OOP, DDD, Clean Code, and Effective Software Design princip
 
 ## Commit & Pull Request Guidelines
 
-
 ## Security & Configuration Tips
 
-
 ## Skills
+
 A skill is a set of local instructions to follow that is stored in a `SKILL.md` file. Below is the list of skills that can be used. Each entry includes a name, description, and file path so you can open the source for full instructions when using a specific skill.
+
 ### Available skills
+
 - brainstorming: You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation. (file: `.agents/skills/brainstorming/SKILL.md`)
 - brand-identity: Provides the single source of truth for brand guidelines, design tokens, technology choices, and voice/tone. Use this skill whenever generating UI components, styling applications, writing copy, or creating user-facing assets to ensure brand consistency. (file: `.agents/skills/brand-identity/SKILL.md`)
 - code-tutor: Explains the codebase, architecture, and patterns to help users understand and learn the project. Use when users ask "how does this work?", "explain this code", "what does this do?", or want to understand project structure and patterns. (file: `.agents/skills/code-tutor/SKILL.md`)
+- config-file-senior-explainer: Explain configuration files in beginner-friendly but senior-depth documentation. Use when a user asks what each config key/value means, why it exists, which framework/module/library consumes it, what lifecycle stage uses it, and when output must be saved to `.sisyphus/docs/{name}.md`. (file: `.agents/skills/config-file-senior-explainer/SKILL.md`)
 - create-skill: Guides users through creating effective Agent Skills for Cursor. Use when the user wants to create, write, or author a new skill, or asks about skill structure, best practices, or SKILL.md format. (file: `.agents/skills/create-skills/SKILL.md`)
 - create-subagent: Create custom subagents for specialized AI tasks. Use when the user wants to create a new type of subagent, set up task-specific agents, configure code reviewers, debuggers, or domain-specific assistants with custom prompts. (file: `.agents/skills/create-agent/SKILL.md`)
 - create-workflow: Create custom workflows for repeatable processes. Use when the user wants to define a new standard operating procedure, automation steps, or a specific sequence of actions to be reused. (file: `.agents/skills/create-workflow/SKILL.md`)
@@ -115,15 +161,16 @@ A skill is a set of local instructions to follow that is stored in a `SKILL.md` 
 - writing-skills: Use when creating new skills, editing existing skills, or verifying skills work before deployment (file: `.agents/skills/writing-skills/SKILL.md`)
 
 ### How to use skills
+
 - Discovery: The list above is the skills available in this session (name + description + file path). Skill bodies live on disk at the listed paths.
 - Trigger rules: If the user names a skill (with `$SkillName` or plain text) OR the task clearly matches a skill's description shown above, you must use that skill for that turn. Multiple mentions mean use them all. Do not carry skills across turns unless re-mentioned.
 - Missing/blocked: If a named skill isn't in the list or the path can't be read, say so briefly and continue with the best fallback.
 - How to use a skill (progressive disclosure):
-  1) After deciding to use a skill, open its `SKILL.md`. Read only enough to follow the workflow.
-  2) When `SKILL.md` references relative paths (e.g., `scripts/foo.py`), resolve them relative to the skill directory listed above first, and only consider other paths if needed.
-  3) If `SKILL.md` points to extra folders such as `references/`, load only the specific files needed for the request; don't bulk-load everything.
-  4) If `scripts/` exist, prefer running or patching them instead of retyping large code blocks.
-  5) If `assets/` or templates exist, reuse them instead of recreating from scratch.
+  1. After deciding to use a skill, open its `SKILL.md`. Read only enough to follow the workflow.
+  2. When `SKILL.md` references relative paths (e.g., `scripts/foo.py`), resolve them relative to the skill directory listed above first, and only consider other paths if needed.
+  3. If `SKILL.md` points to extra folders such as `references/`, load only the specific files needed for the request; don't bulk-load everything.
+  4. If `scripts/` exist, prefer running or patching them instead of retyping large code blocks.
+  5. If `assets/` or templates exist, reuse them instead of recreating from scratch.
 - Coordination and sequencing:
   - If multiple skills apply, choose the minimal set that covers the request and state the order you'll use them.
   - Announce which skill(s) you're using and why (one short line). If you skip an obvious skill, say why.
