@@ -34,11 +34,11 @@ cd modules
 node --env-file=.env --experimental-strip-types ./routing-patterns/rout2.ts -- "Book me a hotel in Paris."
 ```
 
-`rout3.ts` single request workflow (OpenAI Agents SDK style):
+`coordinator-routing-openai.ts` tutorial workflow (OpenAI Agents SDK style):
 
 ```bash
 cd modules
-node --env-file=.env --experimental-strip-types ./routing-patterns/rout3.ts -- "Book me a hotel in Paris."
+node --env-file=.env --experimental-strip-types ./routing-patterns/coordinator-routing-openai.ts
 ```
 
 ## Output Contract
@@ -69,14 +69,14 @@ When no CLI request is provided, the coordinator workflow returns an array with 
 }
 ```
 
-`rout3.ts` also returns a single object in the same schema:
+`coordinator-routing-openai.ts` prints tutorial-style step logs and assistant outputs:
 
-```json
-{
-  "request": "Book me a hotel in Paris.",
-  "decision": "booker",
-  "output": "Booking Handler processed request: 'Book me a hotel in Paris.'. Result: Simulated booking action.",
-  "agentName": "booking_agent",
-  "modelName": "hf:moonshotai/Kimi-K2.5"
-}
+```text
+=== Step 1: Basic Agent ===
+User: Hello! Introduce yourself briefly.
+Assistant Output: ...
+
+=== Step 2: Coordinator Routing Agent ===
+User: Book me a flight to London.
+Assistant Output: ...
 ```

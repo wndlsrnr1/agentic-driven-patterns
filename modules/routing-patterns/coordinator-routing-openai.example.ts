@@ -1,13 +1,4 @@
-/**
- * coordinator-routing-openai.ts
- *
- * @openai/agents와 zod를 사용해
- * Step 1(기본 Agent) + Step 2(Coordinator Routing)를 학습하는 튜토리얼입니다.
- *
- * Run:
- * cd modules && node --env-file=.env --experimental-strip-types ./routing-patterns/coordinator-routing-openai.ts
- */
-
+import { getModelNameForTiktoken } from "@langchain/core/language_models/base";
 import {
   Agent,
   OpenAIProvider,
@@ -16,10 +7,13 @@ import {
   setDefaultOpenAIKey,
   tool,
 } from "@openai/agents";
+import { request } from "node:http";
+import { run } from "node:test";
 import { z } from "zod";
 
 const DEFAULT_SYNTHETIC_BASE_URL: string =
   "https://api.synthetic.new/openai/v1";
+
 const DEFAULT_SYNTHETIC_MODEL: string = "hf:moonshotai/Kimi-K2.5";
 
 const DEFAULT_COORDINATOR_REQUESTS: Array<string> = [
@@ -38,10 +32,11 @@ type RoutingToolInput = {
   request: string;
 };
 
-const ROUTING_TOOL_INPUT_SCHEMA: z.ZodObject<{ request: z.ZodString }> =
-  z.object({
-    request: z.string(),
-  });
+const ROUTING_TOOL_INPUT_SCHEMA: z.ZodObject<{
+  request: z.ZodString;
+}> = z.object({
+  request: z.string(),
+});
 
 function buildRuntimeConfig(): RuntimeConfig {
   const apiKey: string | undefined = process.env.SYNTHETIC_API_KEY?.trim();
@@ -76,12 +71,10 @@ function configureOpenAIProvider(runtimeConfig: RuntimeConfig): OpenAIProvider {
 }
 
 function createRunner(provider: OpenAIProvider): Runner {
-  const runner: Runner = new Runner({
+  return new Runner({
     modelProvider: provider,
     tracingDisabled: true,
   });
-
-  return runner;
 }
 
 function bookingHandler(requestText: string): string {
@@ -89,15 +82,15 @@ function bookingHandler(requestText: string): string {
 }
 
 function infoHandler(requestText: string): string {
-  return `Info Handler processed request: '${requestText}'. Result: Simulated information retrieval.`;
+  return `Info Handler processed request: '${requestText}'. Result: Simulated booking action.`;
 }
 
 function unclearHandler(requestText: string): string {
-  return `Coordinator could not delegate request: '${requestText}'. Please clarify.`;
+  return `Coordinator could not delegate request. '${requestText}'. Please clarify.`;
 }
 
-function createBookingTool(): ReturnType<typeof tool> {
-  const bookingTool: ReturnType<typeof tool> = tool({
+function creataeBookingTool(): ReturnType<typeof tool> {
+  return tool({
     name: "booking_handler",
     description: "Handle flight and hotel booking requests.",
     parameters: ROUTING_TOOL_INPUT_SCHEMA,
@@ -105,12 +98,10 @@ function createBookingTool(): ReturnType<typeof tool> {
       return bookingHandler(input.request);
     },
   });
-
-  return bookingTool;
 }
 
 function createInfoTool(): ReturnType<typeof tool> {
-  const infoTool: ReturnType<typeof tool> = tool({
+  return tool({
     name: "info_handler",
     description: "Handle general information requests.",
     parameters: ROUTING_TOOL_INPUT_SCHEMA,
@@ -118,12 +109,10 @@ function createInfoTool(): ReturnType<typeof tool> {
       return infoHandler(input.request);
     },
   });
-
-  return infoTool;
 }
 
 function createUnclearTool(): ReturnType<typeof tool> {
-  const unclearTool: ReturnType<typeof tool> = tool({
+  return tool({
     name: "unclear_handler",
     description: "Handle requests that cannot be delegated confidently.",
     parameters: ROUTING_TOOL_INPUT_SCHEMA,
@@ -131,68 +120,42 @@ function createUnclearTool(): ReturnType<typeof tool> {
       return unclearHandler(input.request);
     },
   });
-
-  return unclearTool;
 }
 
 function createBookingAgent(modelName: string): Agent {
-  const bookingTool: ReturnType<typeof tool> = createBookingTool();
-
-  const bookingAgent: Agent = new Agent({
+  return Agent.create({
     name: "Booker",
-    instructions: [
-      "You are Booker.",
-      "Always call the `booking_handler` tool using the exact original user request.",
-      "Do not answer directly.",
-    ].join("\n"),
+    instructions: `You are Booker. Always call the 'booking_handler' tool using the exact original user request. Do not answer directly`,
     handoffDescription:
-      "A specialized agent that handles all flight and hotel booking requests.",
+      "A specialized agent that handles flight and hotel booking requets.",
     model: modelName,
-    tools: [bookingTool],
+    tools: [creataeBookingTool()],
     toolUseBehavior: "stop_on_first_tool",
   });
-
-  return bookingAgent;
 }
 
 function createInfoAgent(modelName: string): Agent {
-  const infoTool: ReturnType<typeof tool> = createInfoTool();
-
-  const infoAgent: Agent = new Agent({
+  return Agent.create({
     name: "Info",
-    instructions: [
-      "You are Info.",
-      "Always call the `info_handler` tool using the exact original user request.",
-      "Do not answer directly.",
-    ].join("\n"),
+    instructions: `You are info. Always call the 'info_handler' tool using extract orignal user request. Do not answer directly.`,
     handoffDescription:
       "A specialized agent that handles general information questions.",
     model: modelName,
-    tools: [infoTool],
+    tools: [createInfoTool()],
     toolUseBehavior: "stop_on_first_tool",
   });
-
-  return infoAgent;
 }
 
 function createUnclearAgent(modelName: string): Agent {
-  const unclearTool: ReturnType<typeof tool> = createUnclearTool();
-
-  const unclearAgent: Agent = new Agent({
+  return Agent.create({
     name: "Unclear",
-    instructions: [
-      "You are Unclear.",
-      "Always call the `unclear_handler` tool when routing is uncertain.",
-      "Do not answer directly.",
-    ].join("\n"),
+    instructions: `You are unclear. Always call the 'unclear_handler' tool when routing is uncertain. Do not answer directly.`,
     handoffDescription:
       "A specialist agent that handles ambiguous or unclear requests.",
     model: modelName,
-    tools: [unclearTool],
+    tools: [createUnclearTool()],
     toolUseBehavior: "stop_on_first_tool",
   });
-
-  return unclearAgent;
 }
 
 function createCoordinatorAgent(
@@ -201,22 +164,19 @@ function createCoordinatorAgent(
   infoAgent: Agent,
   unclearAgent: Agent,
 ): Agent {
-  const coordinatorAgent: Agent = Agent.create({
+  return Agent.create({
     name: "Coordinator",
-    instructions: [
-      "You are the main coordinator.",
-      "Analyze the incoming user request and hand off to one specialist agent.",
-      "Do not answer the user directly.",
-      "- For booking flights/hotels, hand off to Booker.",
-      "- For general information requests, hand off to Info.",
-      "- For unclear requests, hand off to Unclear.",
-    ].join("\n"),
+    instructions: `
+    You are the main coordinator. 
+    Analyze the incoming user request and hand off to one specialist agent. 
+    Do not answer the user directly.
+    - For booking flight/hotels, hand off to Info.
+    - For general information requests, hand off to Info.
+    - For unclear requests, hand off to Unclear.`,
     handoffDescription: "Routes user requests to the correct specialist agent.",
     model: modelName,
     handoffs: [bookingAgent, infoAgent, unclearAgent],
   });
-
-  return coordinatorAgent;
 }
 
 function toDisplayOutput(finalOutput: unknown): string {
@@ -225,8 +185,6 @@ function toDisplayOutput(finalOutput: unknown): string {
 }
 
 async function runBasicAgentTutorial(): Promise<void> {
-  console.log("=== Step 1: Basic Agent ===\n");
-
   const runtimeConfig: RuntimeConfig = buildRuntimeConfig();
   const provider: OpenAIProvider = configureOpenAIProvider(runtimeConfig);
   const runner: Runner = createRunner(provider);
@@ -234,11 +192,11 @@ async function runBasicAgentTutorial(): Promise<void> {
   const simpleAgent: Agent = new Agent({
     name: "SimpleBot",
     instructions:
-      "You are a helpful assistant. Provide short, concise answers.",
+      "Role: You are a helpful assistant. Provide short, concise answers. If someone ask what you are you should answer 'I am a helpful assistant.'",
     model: runtimeConfig.modelName,
   });
 
-  const userMessage: string = "Hello! Introduce yourself briefly.";
+  const userMessage: string = " Hello! Introduce yourself briefly";
   console.log(`User: ${userMessage}`);
 
   const result: { finalOutput: unknown } = (await runner.run(
@@ -253,9 +211,10 @@ async function runBasicAgentTutorial(): Promise<void> {
   console.log(`Assistant Output: ${assistantOutput}\n`);
 }
 
-async function runCoordinatorRoutingTutorial(): Promise<void> {
-  console.log("=== Step 2: Coordinator Routing Agent ===\n");
+await runBasicAgentTutorial();
 
+async function runCoordinatorRoutingOpenAiTutorial(): Promise<void> {
+  console.log("=== Step 2: Coordinator Routing Agent ===\n");
   const runtimeConfig: RuntimeConfig = buildRuntimeConfig();
   const provider: OpenAIProvider = configureOpenAIProvider(runtimeConfig);
   const runner: Runner = createRunner(provider);
@@ -286,19 +245,4 @@ async function runCoordinatorRoutingTutorial(): Promise<void> {
   }
 }
 
-async function runCoordinatorRoutingOpenAiTutorial(): Promise<void> {
-  try {
-    await runBasicAgentTutorial();
-    console.log("--------------------------------------------------\n");
-    await runCoordinatorRoutingTutorial();
-  } catch (error: unknown) {
-    const errorMessage: string =
-      error instanceof Error ? error.message : String(error);
-    console.error("Tutorial execution failed:", errorMessage);
-  }
-}
-
-const isNodeTestContext: boolean = process.env.NODE_TEST_CONTEXT !== undefined;
-if (!isNodeTestContext) {
-  void runCoordinatorRoutingOpenAiTutorial();
-}
+await runCoordinatorRoutingOpenAiTutorial();
