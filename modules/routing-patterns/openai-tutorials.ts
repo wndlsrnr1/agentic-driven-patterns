@@ -102,11 +102,100 @@ async function runBasicAgentTutorial(): Promise<void> {
 }
 
 /**
+ * Step 2: Tool 사용 및 라우팅 에이전트(Coordinator) 구성
+ * 특정 작업을 수행할 수 있는 Tool을 Agent에 쥐여주고,
+ * 여러 하위 직원을 거느리는 Coordinator의 동작을 학습합니다.
+ */
+
+// 1. Zod를 활용해 Tool의 파라미터(입력 스키마)를 정의합니다.
+// 입력받은 도시의 날씨를 확인하는 함수라고 가정합니다.
+const WeatherToolSchema = z.object({
+  city: z.string().describe("날씨를 조회할 도시 이름"),
+});
+
+type WeatherToolInput = z.infer<typeof WeatherToolSchema>;
+
+// 2. tool() 함수로 에이전트가 사용할 도구를 생성합니다.
+// 도구의 목적(description)과 스키마(parameters)를 명확히 적어야 합니다.
+const weatherTool = tool({
+  name: "get_weather",
+  description: "특정 도시의 현재 날씨를 가져옵니다.",
+  parameters: WeatherToolSchema,
+  execute: (input: WeatherToolInput): string => {
+    // 실제로는 API를 호출하겠지만 튜토리얼이므로 모의 데이터를 반환합니다.
+    return `${input.city}의 오늘 날씨는 섭씨 22도이며 맑습니다.`;
+  },
+});
+
+async function runRoutingTutorial(): Promise<void> {
+  console.log("=== Step 2: Handoff & Coordinator Agent ===\n");
+
+  const provider = configureOpenAIProvider();
+  const config = buildRuntimeConfig();
+
+  // 3. 날씨 도우미 봇(WeatherBot)을 생성하고 방금 만든 날씨 도구를 장착합니다.
+  const weatherAgent = new Agent({
+    name: "WeatherBot",
+    instructions:
+      "당신은 날씨 전문가입니다. 사용자가 날씨를 물으면 get_weather 도구를 사용하여 정확히 대답하세요.",
+    model: config.modelName,
+    tools: [weatherTool], // 에이전트가 사용할 도구 목록
+  });
+
+  // 4. 일반적인 잡담을 담당하는 길잡이 봇(GreeterBot)을 만듭니다.
+  const greeterAgent = new Agent({
+    name: "GreeterBot",
+    instructions: "당신은 사용자에게 인사를 건네고 환영하는 친절한 봇입니다.",
+    model: config.modelName,
+  });
+
+  // 5. 사용자의 요청을 분석하고 적절한 봇으로 일을 넘기는(handoffs) 코디네이터를 생성합니다.
+  const coordinatorAgent = Agent.create({
+    name: "Coordinator",
+    instructions: [
+      "당신은 중앙 라우팅 코디네이터입니다.",
+      "사용자의 요청이 날씨와 관련되어 있다면 WeatherBot으로 넘기세요.",
+      "날씨와 관련이 없는 단순 인사라면 GreeterBot으로 넘기세요.",
+      "당신은 항상 하위 상담원에게 전달해야하며, 직접 대답하지 마세요.",
+    ].join("\n"),
+    model: config.modelName,
+    handoffs: [weatherAgent, greeterAgent], // 부하 직원 목록
+  });
+
+  const runner = new Runner({
+    modelProvider: provider,
+    tracingDisabled: true,
+  });
+
+  // 테스트 1: 날씨 질문
+  const weatherRequest = "파리 날씨는 어떤가요?";
+  console.log(`User: ${weatherRequest}`);
+  const result1 = await runner.run(coordinatorAgent, weatherRequest, {
+    maxTurns: 5,
+  });
+  console.log(
+    `Assistant Output: ${JSON.stringify(result1.finalOutput, null, 2)}\n`,
+  );
+
+  // 테스트 2: 일반 인사
+  const greetRequest = "안녕! 좋은 아침이야.";
+  console.log(`User: ${greetRequest}`);
+  const result2 = await runner.run(coordinatorAgent, greetRequest, {
+    maxTurns: 5,
+  });
+  console.log(
+    `Assistant Output: ${JSON.stringify(result2.finalOutput, null, 2)}\n`,
+  );
+}
+
+/**
  * 실행 진입점
  */
 export async function runTutorial(): Promise<void> {
   try {
     await runBasicAgentTutorial();
+    console.log("--------------------------------------------------\n");
+    await runRoutingTutorial();
   } catch (error) {
     console.error("Tutorial execution failed:", error);
   }
@@ -115,5 +204,5 @@ export async function runTutorial(): Promise<void> {
 // 직접 파일을 실행한 경우만 동작하도록 처리
 const isNodeTestContext: boolean = process.env.NODE_TEST_CONTEXT !== undefined;
 if (!isNodeTestContext) {
-  runTutorial();
+  runTutorial().catch(console.error);
 }
