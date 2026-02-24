@@ -28,3 +28,43 @@
 - Prevention Rule 1: When user says "PLEASE IMPLEMENT THIS PLAN", start code edits in the same turn and avoid additional planning output.
 - Prevention Rule 2: In default collaboration mode, treat provided plan as execution contract and report progress through implementation checkpoints.
 - Prevention Rule 3: Confirm plan-required verification commands are run before final response.
+
+## 2026-02-23
+
+- Pattern: User requested alignment with "original intent" naming (`booking_agent`), but implementation used function-only naming (`bookingHandler`) that obscured intent.
+- Prevention Rule 1: When porting examples, preserve intent-bearing domain names from source (agent roles/IDs), not just functional equivalence.
+- Prevention Rule 2: Add a focused RED test that checks intent markers (e.g., delegated agent ID/log/output wording) before refactor.
+- Prevention Rule 3: If target file differs from main implementation (`*.example.ts` vs production file), implement and verify in the exact file user named.
+
+## 2026-02-23
+
+- Pattern: User clarified the runtime context was WSL, and initial environment assumption did not include Windows-side verification.
+- Prevention Rule 1: When user mentions WSL, verify both Linux and Windows layers before concluding environment-dependent checks.
+- Prevention Rule 2: For font/tool installation checks in WSL, inspect `/mnt/c/Windows` and user-profile Windows paths in addition to Linux package/font lists.
+- Pattern: User requested a direct code change ("단계별 로그 추가") after a partial/ambiguous message.
+- Prevention Rule 1: When the follow-up clarifies an explicit implementation action, switch to immediate code edits instead of extra discussion.
+- Prevention Rule 2: For logging enhancement requests, add verifiable step logs and back them with tests that assert log messages.
+- Pattern: User asked which newly added TypeScript blocks replaced specific original-spec blocks, and plain implementation without replacement annotations reduced readability.
+- Prevention Rule 1: When porting code from another language/spec, add explicit `original -> replacement` comments at each major block (config, router, delegation, entrypoint).
+- Pattern: User-provided library list was an example set, but scope needed all LangChain and external libraries at real usage points.
+- Prevention Rule 1: When a request lists libraries with formatting examples, default to "example list" semantics unless user explicitly says "only these".
+- Prevention Rule 2: In comment/docstring tasks, derive final coverage from actual import usage (all LangChain + third-party packages), not from the sample names alone.
+- Pattern: User asked for a simplified variant but explicitly wanted it as a separate file, not edits to the existing implementation.
+- Prevention Rule 1: When user says "do not modify, create separately", create a new `*.minimal.*` (or equivalent) file and leave existing files untouched.
+- Prevention Rule 2: In completion report, explicitly state original file unchanged and include new file path.
+- Pattern: User requested minimal script execution without entry guard/conditional wrapper, but prior version kept `isDirectExecution` conditional.
+- Prevention Rule 1: For "single execution" requests, prefer top-level execution line directly unless the user explicitly asks for import-safe guard behavior.
+- Pattern: User wanted single-question workflow, but implementation kept multi-request loop with fixed array.
+- Prevention Rule 1: When user says "one question only", remove loop/array batch processing and return a single result contract.
+
+## 2026-02-24
+
+- Pattern: User corrected target scope from `coordinator-routing.workflow.ts` to `coordinator-routing.workflow.example.ts` after an interrupted turn.
+- Prevention Rule 1: After any interruption or correction, restate the exact target path and verify edits are applied only to that file before proceeding.
+- Pattern: User requested additional refactor to resolve branching behavior via type-to-handler mapping rather than direct handler wiring.
+- Prevention Rule 1: When users ask for "type-based" branching, introduce a typed lookup map (`Record<type, handler>`) as SSOT first, then update call sites.
+- Prevention Rule 2: Keep existing handler behavior strings intact during structural refactors unless the user explicitly requests output-text changes.
+- Pattern: User asked a style concept first, then immediately requested direct code conversion in the same style.
+- Prevention Rule 1: When a user says "아래 코드를 그렇게 바꿔", interpret it as immediate in-place refactor with the exact style just discussed (no extra explanation step).
+- Pattern: User escalated from local snippet cleanup to whole-file restructuring focused on readable top-level flow and clear responsibilities.
+- Prevention Rule 1: When user says "전체 그렇게 리팩토링", refactor the entire file structure (not only the selected block) and keep a single explicit top-level execution entry.

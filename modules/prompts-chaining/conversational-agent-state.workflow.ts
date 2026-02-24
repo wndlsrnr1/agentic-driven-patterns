@@ -1,15 +1,20 @@
-import { StringOutputParser } from '@langchain/core/output_parsers';
-import { ChatPromptTemplate } from '@langchain/core/prompts';
-import { ChatOpenAI } from '@langchain/openai';
-import { resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
+/**
+ * Run:
+ * cd modules && node --env-file=.env --experimental-strip-types ./prompts-chaining/conversational-agent-state.workflow.ts
+ */
+import { StringOutputParser } from "@langchain/core/output_parsers";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { ChatOpenAI } from "@langchain/openai";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
-const DEFAULT_SYNTHETIC_BASE_URL: string = 'https://api.synthetic.new/openai/v1';
-const DEFAULT_SYNTHETIC_MODEL: string = 'hf:moonshotai/Kimi-K2.5';
+const DEFAULT_SYNTHETIC_BASE_URL: string =
+  "https://api.synthetic.new/openai/v1";
+const DEFAULT_SYNTHETIC_MODEL: string = "hf:moonshotai/Kimi-K2.5";
 const DEFAULT_TURNS: Array<string> = [
-  'Hi, I need help scheduling a project kickoff meeting.',
-  'The attendees are Mina and David.',
-  'Please schedule it next Tuesday at 10 AM in Seoul.',
+  "Hi, I need help scheduling a project kickoff meeting.",
+  "The attendees are Mina and David.",
+  "Please schedule it next Tuesday at 10 AM in Seoul.",
 ];
 
 /**
@@ -105,7 +110,9 @@ type TurnAnalysisPayload = {
  */
 function removeCodeFence(modelText: string): string {
   const text: string = modelText.trim();
-  const match: RegExpMatchArray | null = text.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+  const match: RegExpMatchArray | null = text.match(
+    /^```(?:json)?\s*([\s\S]*?)\s*```$/i,
+  );
   return match ? match[1].trim() : text;
 }
 
@@ -150,7 +157,7 @@ function buildModel(runtimeConfig: RuntimeConfig): ChatOpenAI {
  */
 function parseTurnsFromInput(rawText: string): Array<string> {
   return rawText
-    .split('|')
+    .split("|")
     .map((turn: string): string => turn.trim())
     .filter((turn: string): boolean => turn.length > 0);
 }
@@ -168,14 +175,14 @@ function parseTurnsFromInput(rawText: string): Array<string> {
 function normalizeEntityValues(
   entities: Record<string, unknown>,
 ): Record<string, string> {
-  const normalizedEntries: Array<[string, string]> = Object.entries(entities).map(
-    ([key, value]: [string, unknown]): [string, string] => {
-      if (typeof value === "string") {
-        return [key, value];
-      }
-      return [key, JSON.stringify(value)];
-    },
-  );
+  const normalizedEntries: Array<[string, string]> = Object.entries(
+    entities,
+  ).map(([key, value]: [string, unknown]): [string, string] => {
+    if (typeof value === "string") {
+      return [key, value];
+    }
+    return [key, JSON.stringify(value)];
+  });
   return Object.fromEntries(normalizedEntries) as Record<string, string>;
 }
 
@@ -229,7 +236,7 @@ async function runDefaultConversationalAgentStateWorkflow(
   runtimeConfig: RuntimeConfig,
 ): Promise<RunConversationalAgentStateWorkflowResult> {
   if (userTurns.length === 0) {
-    throw new Error('At least one user turn is required.');
+    throw new Error("At least one user turn is required.");
   }
 
   const model: ChatOpenAI = buildModel(runtimeConfig);
@@ -240,15 +247,15 @@ async function runDefaultConversationalAgentStateWorkflow(
     state_json: string;
   }> = ChatPromptTemplate.fromTemplate(
     [
-      'Analyze the user utterance with the current conversation state.',
-      'Return strict JSON with keys: intent, entities, next_required_info.',
-      'entities must be an object of key-value pairs.',
-      'Do not include markdown fences.',
-      '',
-      'Current state JSON:\n{state_json}',
-      '',
-      'User utterance:\n{user_utterance}',
-    ].join('\n'),
+      "Analyze the user utterance with the current conversation state.",
+      "Return strict JSON with keys: intent, entities, next_required_info.",
+      "entities must be an object of key-value pairs.",
+      "Do not include markdown fences.",
+      "",
+      "Current state JSON:\n{state_json}",
+      "",
+      "User utterance:\n{user_utterance}",
+    ].join("\n"),
   )
     .pipe(model)
     .pipe(parser) as StringRunnable<{
@@ -261,13 +268,13 @@ async function runDefaultConversationalAgentStateWorkflow(
     user_utterance: string;
   }> = ChatPromptTemplate.fromTemplate(
     [
-      'Generate a helpful assistant response based on user utterance and state.',
-      'Keep response concise and task-oriented.',
-      '',
-      'State JSON:\n{state_json}',
-      '',
-      'User utterance:\n{user_utterance}',
-    ].join('\n'),
+      "Generate a helpful assistant response based on user utterance and state.",
+      "Keep response concise and task-oriented.",
+      "",
+      "State JSON:\n{state_json}",
+      "",
+      "User utterance:\n{user_utterance}",
+    ].join("\n"),
   )
     .pipe(model)
     .pipe(parser) as StringRunnable<{
@@ -288,7 +295,8 @@ async function runDefaultConversationalAgentStateWorkflow(
       state_json: JSON.stringify(conversationState),
     });
 
-    const analysis: TurnAnalysisPayload = parseJsonObject<TurnAnalysisPayload>(analysisRaw);
+    const analysis: TurnAnalysisPayload =
+      parseJsonObject<TurnAnalysisPayload>(analysisRaw);
     const normalizedEntities: Record<string, string> = normalizeEntityValues(
       analysis.entities ?? {},
     );
@@ -335,10 +343,12 @@ async function runDefaultConversationalAgentStateWorkflow(
  * @returns 정규화된 런타임 설정.
  * @throws `SYNTHETIC_API_KEY`가 없으면 `Error`.
  */
-export function buildRuntimeConfigFromEnv(env: NodeJS.ProcessEnv): RuntimeConfig {
+export function buildRuntimeConfigFromEnv(
+  env: NodeJS.ProcessEnv,
+): RuntimeConfig {
   const apiKey: string | undefined = env.SYNTHETIC_API_KEY?.trim();
   if (!apiKey) {
-    throw new Error('SYNTHETIC_API_KEY is missing.');
+    throw new Error("SYNTHETIC_API_KEY is missing.");
   }
 
   return {
@@ -354,8 +364,10 @@ export function buildRuntimeConfigFromEnv(env: NodeJS.ProcessEnv): RuntimeConfig
  * @param argv Node 프로세스 인자 배열.
  * @returns 턴 목록 또는 `undefined`.
  */
-export function resolveCliInput(argv: readonly string[]): Array<string> | undefined {
-  const rawTurnsText: string = argv.slice(2).join(' ').trim();
+export function resolveCliInput(
+  argv: readonly string[],
+): Array<string> | undefined {
+  const rawTurnsText: string = argv.slice(2).join(" ").trim();
   if (rawTurnsText.length === 0) {
     return undefined;
   }
@@ -371,7 +383,10 @@ export function resolveCliInput(argv: readonly string[]): Array<string> | undefi
  * @param argv Node 프로세스 인자 배열.
  * @returns 직접 실행 여부.
  */
-export function isDirectExecution(moduleUrl: string, argv: readonly string[]): boolean {
+export function isDirectExecution(
+  moduleUrl: string,
+  argv: readonly string[],
+): boolean {
   const scriptPath: string | undefined = argv[1];
   if (!scriptPath) {
     return false;
@@ -394,15 +409,18 @@ export function isDirectExecution(moduleUrl: string, argv: readonly string[]): b
 export async function runConversationalAgentStateWorkflow(
   options: RunConversationalAgentStateWorkflowInput = {},
 ): Promise<RunConversationalAgentStateWorkflowResult> {
-  const runtimeConfig: RuntimeConfig = options.runtimeConfig ?? buildRuntimeConfigFromEnv(options.env ?? process.env);
+  const runtimeConfig: RuntimeConfig =
+    options.runtimeConfig ??
+    buildRuntimeConfigFromEnv(options.env ?? process.env);
   const userTurns: Array<string> = options.userTurns ?? DEFAULT_TURNS;
   const logger: Logger = options.log ?? console.log;
   const workflowRunner: ConversationWorkflowRunner =
     options.workflowRunner ?? runDefaultConversationalAgentStateWorkflow;
 
   logger(`[conversation] turns: ${userTurns.length}`);
-  const result: RunConversationalAgentStateWorkflowResult = await workflowRunner(userTurns, runtimeConfig);
-  logger('[conversation] final state');
+  const result: RunConversationalAgentStateWorkflowResult =
+    await workflowRunner(userTurns, runtimeConfig);
+  logger("[conversation] final state");
   logger(JSON.stringify(result.finalState));
 
   return result;
@@ -422,7 +440,8 @@ async function runFromCli(): Promise<void> {
 
 if (isDirectExecution(import.meta.url, process.argv)) {
   void runFromCli().catch((error: unknown): void => {
-    const errorMessage: string = error instanceof Error ? error.message : String(error);
+    const errorMessage: string =
+      error instanceof Error ? error.message : String(error);
     console.error(errorMessage);
     process.exitCode = 1;
   });

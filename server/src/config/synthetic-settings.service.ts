@@ -1,5 +1,5 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 
 /**
  * OpenAI-compatible LLM 호출에 필요한 설정 묶음이다.
@@ -15,8 +15,8 @@ export type SyntheticSettings = {
   model: string;
 };
 
-const DEFAULT_SYNTHETIC_BASE_URL = 'https://api.synthetic.new/openai/v1';
-const DEFAULT_SYNTHETIC_MODEL = 'hf:moonshotai/Kimi-K2.5';
+const DEFAULT_SYNTHETIC_BASE_URL = "https://api.synthetic.new/openai/v1";
+const DEFAULT_SYNTHETIC_MODEL = "hf:moonshotai/Kimi-K2.5";
 
 /**
  * LLM 연동에 필요한 환경 설정을 애플리케이션 계층에 제공한다.
@@ -48,14 +48,17 @@ export class SyntheticSettingsService {
    * @throws `InternalServerErrorException` 필수 API 키가 없을 때.
    */
   getSettings(): SyntheticSettings {
-    const apiKey = this.configService.get<string>('SYNTHETIC_API_KEY')?.trim();
+    const apiKey = this.configService.get<string>("SYNTHETIC_API_KEY")?.trim();
     if (!apiKey) {
-      throw new InternalServerErrorException('SYNTHETIC_API_KEY is missing.');
+      throw new InternalServerErrorException("SYNTHETIC_API_KEY is missing.");
     }
 
     const baseUrl =
-      this.configService.get<string>('SYNTHETIC_BASE_URL')?.trim() ?? DEFAULT_SYNTHETIC_BASE_URL;
-    const model = this.configService.get<string>('SYNTHETIC_MODEL')?.trim() ?? DEFAULT_SYNTHETIC_MODEL;
+      this.configService.get<string>("SYNTHETIC_BASE_URL")?.trim() ??
+      DEFAULT_SYNTHETIC_BASE_URL;
+    const model =
+      this.configService.get<string>("SYNTHETIC_MODEL")?.trim() ??
+      DEFAULT_SYNTHETIC_MODEL;
 
     return {
       apiKey,

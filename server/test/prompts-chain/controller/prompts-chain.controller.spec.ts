@@ -1,6 +1,6 @@
-import { describe, expect, it, jest } from '@jest/globals';
-import { PromptsChainController } from '../../../src/prompts-chain/controller/prompts-chain.controller.js';
-import { PromptsChainService } from '../../../src/prompts-chain/service/prompts-chain.service.js';
+import { describe, expect, it, jest } from "@jest/globals";
+import { PromptsChainController } from "../../../src/prompts-chain/controller/prompts-chain.controller.js";
+import { PromptsChainService } from "../../../src/prompts-chain/service/prompts-chain.service.js";
 
 /**
  * 컨트롤러가 유스케이스에 위임만 수행하는지 검증한다.
@@ -13,38 +13,39 @@ import { PromptsChainService } from '../../../src/prompts-chain/service/prompts-
  * Side effects:
  * - 없음.
  */
-describe('PromptsChainController', () => {
-  it('Given valid request When runChain Then delegates to use case and returns response', async () => {
+describe("PromptsChainController", () => {
+  it("Given valid request When runChain Then delegates to use case and returns response", async () => {
     const service = {
       run: jest.fn(async () => ({
-        extractedSpecsText: 'cpu=3.5GHz,memory=16GB,storage=1TB',
+        extractedSpecsText: "cpu=3.5GHz,memory=16GB,storage=1TB",
         structuredSpecs: {
-          cpu: '3.5GHz',
-          memory: '16GB',
-          storage: '1TB',
+          cpu: "3.5GHz",
+          memory: "16GB",
+          storage: "1TB",
         },
-        transformedSpecsText: '{"cpu":"3.5GHz","memory":"16GB","storage":"1TB"}',
-        modelName: 'hf:moonshotai/Kimi-K2.5',
+        transformedSpecsText:
+          '{"cpu":"3.5GHz","memory":"16GB","storage":"1TB"}',
+        modelName: "hf:moonshotai/Kimi-K2.5",
       })),
     } as unknown as PromptsChainService;
 
     const controller = new PromptsChainController(service);
     const response = await controller.runChain({
-      sourceText: 'Laptop: 3.5GHz CPU, 16GB RAM, 1TB SSD',
+      sourceText: "Laptop: 3.5GHz CPU, 16GB RAM, 1TB SSD",
     });
 
     expect(service.run).toHaveBeenCalledWith({
-      sourceText: 'Laptop: 3.5GHz CPU, 16GB RAM, 1TB SSD',
+      sourceText: "Laptop: 3.5GHz CPU, 16GB RAM, 1TB SSD",
     });
     expect(response).toEqual({
-      extractedSpecsText: 'cpu=3.5GHz,memory=16GB,storage=1TB',
+      extractedSpecsText: "cpu=3.5GHz,memory=16GB,storage=1TB",
       structuredSpecs: {
-        cpu: '3.5GHz',
-        memory: '16GB',
-        storage: '1TB',
+        cpu: "3.5GHz",
+        memory: "16GB",
+        storage: "1TB",
       },
       transformedSpecsText: '{"cpu":"3.5GHz","memory":"16GB","storage":"1TB"}',
-      modelName: 'hf:moonshotai/Kimi-K2.5',
+      modelName: "hf:moonshotai/Kimi-K2.5",
     });
   });
 });

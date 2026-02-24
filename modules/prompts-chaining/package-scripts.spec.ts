@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 
-const PACKAGE_JSON_PATH: string = new URL('./package.json', import.meta.url).pathname;
+const PACKAGE_JSON_PATH: string = new URL('../package.json', import.meta.url).pathname;
 
-test('package scripts include every workflow command', async (): Promise<void> => {
+test('package scripts keep only validation commands', async (): Promise<void> => {
   const packageJsonText: string = await readFile(PACKAGE_JSON_PATH, 'utf8');
   const packageJson: {
     scripts?: Record<string, string>;
@@ -17,6 +17,13 @@ test('package scripts include every workflow command', async (): Promise<void> =
   const requiredScripts: string[] = [
     'typecheck',
     'test',
+  ];
+
+  for (const scriptName of requiredScripts) {
+    assert.equal(typeof scripts[scriptName], 'string', `script ${scriptName} must exist`);
+  }
+
+  const forbiddenScripts: string[] = [
     'info',
     'complex',
     'data',
@@ -26,7 +33,7 @@ test('package scripts include every workflow command', async (): Promise<void> =
     'multimodal',
   ];
 
-  for (const scriptName of requiredScripts) {
-    assert.equal(typeof scripts[scriptName], 'string', `script ${scriptName} must exist`);
+  for (const scriptName of forbiddenScripts) {
+    assert.equal(scripts[scriptName], undefined, `script ${scriptName} must not exist`);
   }
 });

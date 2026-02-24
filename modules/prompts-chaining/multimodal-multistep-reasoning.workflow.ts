@@ -1,3 +1,7 @@
+/**
+ * Run:
+ * cd modules && node --env-file=.env --experimental-strip-types ./prompts-chaining/multimodal-multistep-reasoning.workflow.ts
+ */
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { HumanMessage } from "@langchain/core/messages";
 import { ChatPromptTemplate } from "@langchain/core/prompts";

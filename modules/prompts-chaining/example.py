@@ -31,13 +31,22 @@ extraction_chain = prompt_extract | llm | StrOutputParser()
 # 전체 체인: extraction 결과를 specifications 변수로 주입해 변환 프롬프트에 연결한다.
 full_chain = {"specifications": extraction_chain} | prompt_transform | llm | StrOutputParser()
 
-# 데모 입력 텍스트(정적 샘플).
-input_text: str = (
-    "The new laptop model features a 3.5 GHz octa-core processor, "
-    "16GB of RAM, and a 1TB NVMe SSD."
-)
+def run_example(input_text: str) -> str:
+    """입력 텍스트를 체인에 전달해 최종 JSON 문자열을 반환한다."""
+    final_result: str = full_chain.invoke({"text_input": input_text})
+    return final_result
 
-# 체인 실행 및 최종 결과 출력.
-final_result: str = full_chain.invoke({"text_input": input_text})
-print("\n--- Final JSON Output ---")
-print(final_result)
+
+def main() -> None:
+    """데모 입력으로 체인을 실행하고 결과를 출력한다."""
+    input_text: str = (
+        "The new laptop model features a 3.5 GHz octa-core processor, "
+        "16GB of RAM, and a 1TB NVMe SSD."
+    )
+    final_result: str = run_example(input_text)
+    print("\n--- Final JSON Output ---")
+    print(final_result)
+
+
+if __name__ == "__main__":
+    main()

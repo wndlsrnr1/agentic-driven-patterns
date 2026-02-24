@@ -1,6 +1,6 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import type { PromptsChainRuntimeConfigDto } from './dto/prompts-chain-runtime-config.dto.js';
+import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import type { PromptsChainRuntimeConfigDto } from "./dto/prompts-chain-runtime-config.dto.js";
 
 /**
  * prompts-chain 런타임 기본값 상수를 정의하는 영역이다.
@@ -9,8 +9,8 @@ import type { PromptsChainRuntimeConfigDto } from './dto/prompts-chain-runtime-c
  * - 호출자: `PromptsChainSettingsService.getRuntimeConfig`.
  * - 사용 목적: 환경 변수 미지정 시 재현 가능한 기본 URL/모델 값을 제공한다.
  */
-const DEFAULT_SYNTHETIC_BASE_URL = 'https://api.synthetic.new/openai/v1';
-const DEFAULT_SYNTHETIC_MODEL = 'hf:moonshotai/Kimi-K2.5';
+const DEFAULT_SYNTHETIC_BASE_URL = "https://api.synthetic.new/openai/v1";
+const DEFAULT_SYNTHETIC_MODEL = "hf:moonshotai/Kimi-K2.5";
 
 /**
  * prompts-chain 실행에 필요한 런타임 설정을 제공한다.
@@ -42,14 +42,17 @@ export class PromptsChainSettingsService {
    * @throws `InternalServerErrorException` `SYNTHETIC_API_KEY`가 없거나 공백일 때.
    */
   getRuntimeConfig(): PromptsChainRuntimeConfigDto {
-    const apiKey = this.configService.get<string>('SYNTHETIC_API_KEY')?.trim();
+    const apiKey = this.configService.get<string>("SYNTHETIC_API_KEY")?.trim();
     if (!apiKey) {
-      throw new InternalServerErrorException('SYNTHETIC_API_KEY is missing.');
+      throw new InternalServerErrorException("SYNTHETIC_API_KEY is missing.");
     }
 
     const baseUrl =
-      this.configService.get<string>('SYNTHETIC_BASE_URL')?.trim() ?? DEFAULT_SYNTHETIC_BASE_URL;
-    const modelName = this.configService.get<string>('SYNTHETIC_MODEL')?.trim() ?? DEFAULT_SYNTHETIC_MODEL;
+      this.configService.get<string>("SYNTHETIC_BASE_URL")?.trim() ??
+      DEFAULT_SYNTHETIC_BASE_URL;
+    const modelName =
+      this.configService.get<string>("SYNTHETIC_MODEL")?.trim() ??
+      DEFAULT_SYNTHETIC_MODEL;
 
     return {
       apiKey,

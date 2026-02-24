@@ -120,4 +120,4 @@ Bias towards not asking the user for help if you can find the answer yourself.
 
 ## Code Style
 
-All code must follow OOP, DDD, Clean Code, explicit return type annotation, human-readable and Effective Software Design principles. Prioritize domain model clarity, separation of responsibilities, readability, and maintainability over language/framework-specific idioms.
+All code must follow OOP, DDD, Clean Code, SSOT, explicit return type annotation, human-readable and Effective Software Design principles. Prioritize domain model clarity, separation of responsibilities, readability, and maintainability over language/framework-specific idioms. No over-engineering. Only the necessary abstractions. Avoid writing overly defensive code. 흐름이 보이는 자기 설명적 구조, Self-Documenting Code.

@@ -1,3 +1,7 @@
+/**
+ * Run:
+ * cd modules && node --env-file=.env --experimental-strip-types ./prompts-chaining/information-processing.workflow.ts
+ */
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { ChatOpenAI } from "@langchain/openai";

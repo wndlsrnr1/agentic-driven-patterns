@@ -5,10 +5,11 @@
     "moduleResolution": "NodeNext",
     "strict": true,
     "allowImportingTsExtensions": true,
+    "noEmit": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "types": ["node"]
   },
-  "include": ["./*.ts"]
+  "include": ["./prompts-chaining/*.ts", "./routing-patterns/*.ts"]
 }

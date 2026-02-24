@@ -25,4 +25,8 @@ npm-debug.log*
 
 #example
 example
+
+# python
 venv
+__pycache__
+pckage-lock.json

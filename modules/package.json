@@ -1,0 +1,23 @@
+{
+  "name": "modules",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p ./tsconfig.json",
+    "test": "node --test --experimental-strip-types ./prompts-chaining/*.spec.ts ./routing-patterns/*.spec.ts",
+    "routing:coordinator": "node --env-file=.env --experimental-strip-types ./routing-patterns/coordinator-routing.workflow.ts",
+    "routing:rout2": "node --env-file=.env --experimental-strip-types ./routing-patterns/rout2.ts",
+    "routing:rout3": "node --env-file=.env --experimental-strip-types ./routing-patterns/rout3.ts"
+  },
+  "dependencies": {
+    "@langchain/core": "^0.3.79",
+    "@langchain/openai": "^0.6.11",
+    "@openai/agents": "^0.3.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.0",
+    "typescript": "^5.9.2"
+  }
+}

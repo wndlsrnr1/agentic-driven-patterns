@@ -1,5 +1,5 @@
-import { describe, expect, it } from '@jest/globals';
-import { envValidationSchema } from '../../src/config/env.validation.js';
+import { describe, expect, it } from "@jest/globals";
+import { envValidationSchema } from "../../src/config/env.validation.js";
 
 /**
  * 환경 변수 스키마의 기본값/필수값 계약을 검증한다.
@@ -12,7 +12,7 @@ import { envValidationSchema } from '../../src/config/env.validation.js';
  * Side effects:
  * - 없음.
  */
-describe('envValidationSchema', () => {
+describe("envValidationSchema", () => {
   /**
    * 필수 키만 제공해도 나머지 옵션이 기본값으로 채워지는지 확인한다.
    *
@@ -24,15 +24,17 @@ describe('envValidationSchema', () => {
    * Side effects:
    * - 없음.
    */
-  it('Given minimal required env When validate Then applies defaults', () => {
+  it("Given minimal required env When validate Then applies defaults", () => {
     const { error, value } = envValidationSchema.validate({
-      SYNTHETIC_API_KEY: 'api-key',
+      SYNTHETIC_API_KEY: "api-key",
     });
 
     expect(error).toBeUndefined();
     expect(value.PORT).toBe(3001);
-    expect(value.CLIENT_ORIGIN).toBe('http://localhost:5173');
-    expect(value.SYNTHETIC_BASE_URL).toBe('https://api.synthetic.new/openai/v1');
-    expect(value.SYNTHETIC_MODEL).toBe('hf:moonshotai/Kimi-K2.5');
+    expect(value.CLIENT_ORIGIN).toBe("http://localhost:5173");
+    expect(value.SYNTHETIC_BASE_URL).toBe(
+      "https://api.synthetic.new/openai/v1",
+    );
+    expect(value.SYNTHETIC_MODEL).toBe("hf:moonshotai/Kimi-K2.5");
   });
 });

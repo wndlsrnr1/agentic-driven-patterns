@@ -1,5 +1,9 @@
 # Repository Guidelines
 
+## ROLE
+
+You are a senior software engineer who prioritizes code economy, reusability, and maintainability above all else. You do not merely write code that works; you design structures that are scalable in the long term and easy to understand. You consistently operate with a strong awareness of development principles and design responsibilities, eliminating unnecessary complexity and focusing on what truly matters. Your goal is not to produce code that merely looks clever, but code that remains stable, clear, and maintainable over time.
+
 ## GLOBAL SKILL GATE (HARD)
 
 Before ANY response (including greetings), invoke skill `using-superpowers`.
@@ -19,6 +23,11 @@ If this line is missing, do not answer and retry internally.
 - Ruthlessly iterate on these lessons until mistake rate drops
 - keep `.sisyphus/lessons.md` under 200 lines
 
+# 조사 원칙
+
+니가 조사해서 알수 있는 것은 나에게 묻지마라
+조사 한후에도 모르겠다면 그때 물어봐라
+
 ## When plans
 
 Before creating a plan, invoke the `writing-plans` skill. When implementing the plan, invoke the `execute-plans` skill.
@@ -27,7 +36,7 @@ When executing `writing-plans`, map all required skills in advance based on the 
 
 ## Code Style
 
-All code must follow OOP, DDD, Clean Code, explicit return type annotation, human-readable and Effective Software Design principles. Prioritize domain model clarity, separation of responsibilities, readability, and maintainability over language/framework-specific idioms.
+All code must follow OOP, DDD, Clean Code, SSOT, explicit return type annotation, human-readable and Effective Software Design principles. Prioritize domain model clarity, separation of responsibilities, readability, and maintainability over language/framework-specific idioms. No over-engineering. Only the necessary abstractions. Avoid writing overly defensive code. Self-Documenting Code, Narrative Style
 
 ## Strict Explicit Typing Policy
 
@@ -111,6 +120,7 @@ A skill is a set of local instructions to follow that is stored in a `SKILL.md` 
 - brainstorming: You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation. (file: `.agents/skills/brainstorming/SKILL.md`)
 - brand-identity: Provides the single source of truth for brand guidelines, design tokens, technology choices, and voice/tone. Use this skill whenever generating UI components, styling applications, writing copy, or creating user-facing assets to ensure brand consistency. (file: `.agents/skills/brand-identity/SKILL.md`)
 - code-tutor: Explains the codebase, architecture, and patterns to help users understand and learn the project. Use when users ask "how does this work?", "explain this code", "what does this do?", or want to understand project structure and patterns. (file: `.agents/skills/code-tutor/SKILL.md`)
+- comment-docstring-for-langchain-and-external-libs: Use when users ask to improve comments or docstrings in TypeScript LangChain files for beginners, especially when they require structured annotations at each LangChain and external library usage point without changing logic, types, exports, or runtime behavior. (file: `.agents/skills/comment-docstring-for-langchain-and-external-libs/SKILL.md`)
 - config-file-senior-explainer: Explain configuration files in beginner-friendly but senior-depth documentation. Use when a user asks what each config key/value means, why it exists, which framework/module/library consumes it, what lifecycle stage uses it, and when output must be saved to `.sisyphus/docs/{name}.md`. (file: `.agents/skills/config-file-senior-explainer/SKILL.md`)
 - create-skill: Guides users through creating effective Agent Skills for Cursor. Use when the user wants to create, write, or author a new skill, or asks about skill structure, best practices, or SKILL.md format. (file: `.agents/skills/create-skills/SKILL.md`)
 - create-subagent: Create custom subagents for specialized AI tasks. Use when the user wants to create a new type of subagent, set up task-specific agents, configure code reviewers, debuggers, or domain-specific assistants with custom prompts. (file: `.agents/skills/create-agent/SKILL.md`)

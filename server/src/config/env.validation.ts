@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import Joi from "joi";
 
 /**
  * 서버 부팅 시 읽는 환경 변수 스키마를 정의한다.
@@ -13,8 +13,10 @@ import Joi from 'joi';
  */
 export const envValidationSchema = Joi.object({
   PORT: Joi.number().default(3001),
-  CLIENT_ORIGIN: Joi.string().uri().default('http://localhost:5173'),
+  CLIENT_ORIGIN: Joi.string().uri().default("http://localhost:5173"),
   SYNTHETIC_API_KEY: Joi.string().required(),
-  SYNTHETIC_BASE_URL: Joi.string().uri().default('https://api.synthetic.new/openai/v1'),
-  SYNTHETIC_MODEL: Joi.string().default('hf:moonshotai/Kimi-K2.5'),
+  SYNTHETIC_BASE_URL: Joi.string()
+    .uri()
+    .default("https://api.synthetic.new/openai/v1"),
+  SYNTHETIC_MODEL: Joi.string().default("hf:moonshotai/Kimi-K2.5"),
 });

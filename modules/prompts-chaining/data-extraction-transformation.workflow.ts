@@ -1,18 +1,23 @@
-import { StringOutputParser } from '@langchain/core/output_parsers';
-import { ChatPromptTemplate } from '@langchain/core/prompts';
-import { ChatOpenAI } from '@langchain/openai';
-import { resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
+/**
+ * Run:
+ * cd modules && node --env-file=.env --experimental-strip-types ./prompts-chaining/data-extraction-transformation.workflow.ts
+ */
+import { StringOutputParser } from "@langchain/core/output_parsers";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { ChatOpenAI } from "@langchain/openai";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
-const DEFAULT_SYNTHETIC_BASE_URL: string = 'https://api.synthetic.new/openai/v1';
-const DEFAULT_SYNTHETIC_MODEL: string = 'hf:moonshotai/Kimi-K2.5';
+const DEFAULT_SYNTHETIC_BASE_URL: string =
+  "https://api.synthetic.new/openai/v1";
+const DEFAULT_SYNTHETIC_MODEL: string = "hf:moonshotai/Kimi-K2.5";
 const DEFAULT_INVOICE_TEXT: string = [
-  'Invoice #A-2026-021',
-  'Vendor: ACME Robotics Ltd.',
-  'Address: 10 Teheran-ro, Gangnam-gu, Seoul',
-  'Amount Due: one thousand and fifty USD',
-  'Due Date: 2026-03-01',
-].join('\n');
+  "Invoice #A-2026-021",
+  "Vendor: ACME Robotics Ltd.",
+  "Address: 10 Teheran-ro, Gangnam-gu, Seoul",
+  "Amount Due: one thousand and fifty USD",
+  "Due Date: 2026-03-01",
+].join("\n");
 
 const MAX_RETRY_COUNT: number = 2;
 const TAX_RATE: number = 0.1;
@@ -108,7 +113,9 @@ type StringRunnable<TInput> = {
  */
 function removeCodeFence(modelText: string): string {
   const text: string = modelText.trim();
-  const match: RegExpMatchArray | null = text.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+  const match: RegExpMatchArray | null = text.match(
+    /^```(?:json)?\s*([\s\S]*?)\s*```$/i,
+  );
   return match ? match[1].trim() : text;
 }
 
@@ -157,19 +164,19 @@ function validateExtractedInvoice(invoice: ExtractedInvoice): Array<string> {
   const errors: Array<string> = [];
 
   if (invoice.vendorName.trim().length === 0) {
-    errors.push('vendorName is missing');
+    errors.push("vendorName is missing");
   }
   if (invoice.address.trim().length === 0) {
-    errors.push('address is missing');
+    errors.push("address is missing");
   }
   if (invoice.amountText.trim().length === 0) {
-    errors.push('amountText is missing');
+    errors.push("amountText is missing");
   }
   if (!/^[A-Z]{3}$/.test(invoice.currency.trim().toUpperCase())) {
-    errors.push('currency must be 3-letter ISO code');
+    errors.push("currency must be 3-letter ISO code");
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(invoice.dueDate.trim())) {
-    errors.push('dueDate must be YYYY-MM-DD');
+    errors.push("dueDate must be YYYY-MM-DD");
   }
 
   return errors;
@@ -198,21 +205,25 @@ function calculateTotalWithTax(amountValue: number, taxRate: number): number {
  * @param sourceDocument 원문 인보이스 텍스트.
  * @returns 추출된 인보이스 객체.
  */
-async function extractInvoice(model: ChatOpenAI, sourceDocument: string): Promise<ExtractedInvoice> {
+async function extractInvoice(
+  model: ChatOpenAI,
+  sourceDocument: string,
+): Promise<ExtractedInvoice> {
   const parser: StringOutputParser = new StringOutputParser();
-  const extractionChain: StringRunnable<{ source_document: string }> = ChatPromptTemplate.fromTemplate(
-    [
-      'Extract invoice fields from the document.',
-      'Return strict JSON with keys: vendorName, address, amountText, currency, dueDate.',
-      'currency must be uppercase 3-letter code.',
-      'dueDate must be YYYY-MM-DD.',
-      'Do not include markdown fences.',
-      '',
-      '{source_document}',
-    ].join('\n'),
-  )
-    .pipe(model)
-    .pipe(parser) as StringRunnable<{ source_document: string }>;
+  const extractionChain: StringRunnable<{ source_document: string }> =
+    ChatPromptTemplate.fromTemplate(
+      [
+        "Extract invoice fields from the document.",
+        "Return strict JSON with keys: vendorName, address, amountText, currency, dueDate.",
+        "currency must be uppercase 3-letter code.",
+        "dueDate must be YYYY-MM-DD.",
+        "Do not include markdown fences.",
+        "",
+        "{source_document}",
+      ].join("\n"),
+    )
+      .pipe(model)
+      .pipe(parser) as StringRunnable<{ source_document: string }>;
 
   const extractedText: string = await extractionChain.invoke({
     source_document: sourceDocument,
@@ -247,17 +258,17 @@ async function repairInvoice(
     validation_errors: string;
   }> = ChatPromptTemplate.fromTemplate(
     [
-      'The previous extraction has missing or malformed fields.',
-      'Fix only the problematic fields and return strict JSON with same keys:',
-      'vendorName, address, amountText, currency, dueDate.',
-      'Do not include markdown fences.',
-      '',
-      'Source document:\n{source_document}',
-      '',
-      'Current extraction:\n{current_invoice_json}',
-      '',
-      'Validation errors:\n{validation_errors}',
-    ].join('\n'),
+      "The previous extraction has missing or malformed fields.",
+      "Fix only the problematic fields and return strict JSON with same keys:",
+      "vendorName, address, amountText, currency, dueDate.",
+      "Do not include markdown fences.",
+      "",
+      "Source document:\n{source_document}",
+      "",
+      "Current extraction:\n{current_invoice_json}",
+      "",
+      "Validation errors:\n{validation_errors}",
+    ].join("\n"),
   )
     .pipe(model)
     .pipe(parser) as StringRunnable<{
@@ -269,7 +280,7 @@ async function repairInvoice(
   const repairedText: string = await repairChain.invoke({
     source_document: sourceDocument,
     current_invoice_json: JSON.stringify(currentInvoice),
-    validation_errors: validationErrors.join('; '),
+    validation_errors: validationErrors.join("; "),
   });
 
   return parseJsonObject<ExtractedInvoice>(repairedText);
@@ -286,20 +297,24 @@ async function repairInvoice(
  * @param extractedInvoice 검증된 추출 결과.
  * @returns 정규화된 인보이스 객체.
  */
-async function normalizeInvoice(model: ChatOpenAI, extractedInvoice: ExtractedInvoice): Promise<NormalizedInvoice> {
+async function normalizeInvoice(
+  model: ChatOpenAI,
+  extractedInvoice: ExtractedInvoice,
+): Promise<NormalizedInvoice> {
   const parser: StringOutputParser = new StringOutputParser();
-  const normalizationChain: StringRunnable<{ extracted_invoice_json: string }> = ChatPromptTemplate.fromTemplate(
-    [
-      'Normalize this invoice JSON to numeric amount.',
-      'Return strict JSON with keys: vendorName, address, amountValue, currency, dueDate.',
-      'amountValue must be a number.',
-      'Do not include markdown fences.',
-      '',
-      '{extracted_invoice_json}',
-    ].join('\n'),
-  )
-    .pipe(model)
-    .pipe(parser) as StringRunnable<{ extracted_invoice_json: string }>;
+  const normalizationChain: StringRunnable<{ extracted_invoice_json: string }> =
+    ChatPromptTemplate.fromTemplate(
+      [
+        "Normalize this invoice JSON to numeric amount.",
+        "Return strict JSON with keys: vendorName, address, amountValue, currency, dueDate.",
+        "amountValue must be a number.",
+        "Do not include markdown fences.",
+        "",
+        "{extracted_invoice_json}",
+      ].join("\n"),
+    )
+      .pipe(model)
+      .pipe(parser) as StringRunnable<{ extracted_invoice_json: string }>;
 
   const normalizedText: string = await normalizationChain.invoke({
     extracted_invoice_json: JSON.stringify(extractedInvoice),
@@ -326,27 +341,44 @@ async function runDefaultDataExtractionTransformationWorkflow(
 ): Promise<RunDataExtractionTransformationWorkflowResult> {
   const model: ChatOpenAI = buildModel(runtimeConfig);
 
-  let extractedInvoice: ExtractedInvoice = await extractInvoice(model, sourceDocument);
+  let extractedInvoice: ExtractedInvoice = await extractInvoice(
+    model,
+    sourceDocument,
+  );
   let retries: number = 0;
-  let validationErrors: Array<string> = validateExtractedInvoice(extractedInvoice);
+  let validationErrors: Array<string> =
+    validateExtractedInvoice(extractedInvoice);
 
   // 검증 오류가 존재하면 제한 횟수 내에서 보정 체인을 재실행한다.
   while (validationErrors.length > 0 && retries < MAX_RETRY_COUNT) {
     retries += 1;
-    extractedInvoice = await repairInvoice(model, sourceDocument, extractedInvoice, validationErrors);
+    extractedInvoice = await repairInvoice(
+      model,
+      sourceDocument,
+      extractedInvoice,
+      validationErrors,
+    );
     validationErrors = validateExtractedInvoice(extractedInvoice);
   }
 
   if (validationErrors.length > 0) {
-    throw new Error(`Invoice extraction failed after retries: ${validationErrors.join(', ')}`);
+    throw new Error(
+      `Invoice extraction failed after retries: ${validationErrors.join(", ")}`,
+    );
   }
 
-  const normalizedInvoice: NormalizedInvoice = await normalizeInvoice(model, extractedInvoice);
+  const normalizedInvoice: NormalizedInvoice = await normalizeInvoice(
+    model,
+    extractedInvoice,
+  );
   if (!Number.isFinite(normalizedInvoice.amountValue)) {
-    throw new Error('Normalized amountValue must be a finite number.');
+    throw new Error("Normalized amountValue must be a finite number.");
   }
 
-  const calculationResult: number = calculateTotalWithTax(normalizedInvoice.amountValue, TAX_RATE);
+  const calculationResult: number = calculateTotalWithTax(
+    normalizedInvoice.amountValue,
+    TAX_RATE,
+  );
 
   return {
     sourceDocument,
@@ -365,10 +397,12 @@ async function runDefaultDataExtractionTransformationWorkflow(
  * @returns 정규화된 런타임 설정.
  * @throws `SYNTHETIC_API_KEY`가 없으면 `Error`.
  */
-export function buildRuntimeConfigFromEnv(env: NodeJS.ProcessEnv): RuntimeConfig {
+export function buildRuntimeConfigFromEnv(
+  env: NodeJS.ProcessEnv,
+): RuntimeConfig {
   const apiKey: string | undefined = env.SYNTHETIC_API_KEY?.trim();
   if (!apiKey) {
-    throw new Error('SYNTHETIC_API_KEY is missing.');
+    throw new Error("SYNTHETIC_API_KEY is missing.");
   }
 
   return {
@@ -385,7 +419,7 @@ export function buildRuntimeConfigFromEnv(env: NodeJS.ProcessEnv): RuntimeConfig
  * @returns 소스 문서 문자열 또는 `undefined`.
  */
 export function resolveCliInput(argv: readonly string[]): string | undefined {
-  const sourceDocument: string = argv.slice(2).join(' ').trim();
+  const sourceDocument: string = argv.slice(2).join(" ").trim();
   return sourceDocument.length > 0 ? sourceDocument : undefined;
 }
 
@@ -396,7 +430,10 @@ export function resolveCliInput(argv: readonly string[]): string | undefined {
  * @param argv Node 프로세스 인자 배열.
  * @returns 직접 실행 여부.
  */
-export function isDirectExecution(moduleUrl: string, argv: readonly string[]): boolean {
+export function isDirectExecution(
+  moduleUrl: string,
+  argv: readonly string[],
+): boolean {
   const scriptPath: string | undefined = argv[1];
   if (!scriptPath) {
     return false;
@@ -419,15 +456,18 @@ export function isDirectExecution(moduleUrl: string, argv: readonly string[]): b
 export async function runDataExtractionTransformationWorkflow(
   options: RunDataExtractionTransformationWorkflowInput = {},
 ): Promise<RunDataExtractionTransformationWorkflowResult> {
-  const runtimeConfig: RuntimeConfig = options.runtimeConfig ?? buildRuntimeConfigFromEnv(options.env ?? process.env);
+  const runtimeConfig: RuntimeConfig =
+    options.runtimeConfig ??
+    buildRuntimeConfigFromEnv(options.env ?? process.env);
   const sourceDocument: string = options.sourceDocument ?? DEFAULT_INVOICE_TEXT;
   const logger: Logger = options.log ?? console.log;
   const workflowRunner: DataExtractionWorkflowRunner =
     options.workflowRunner ?? runDefaultDataExtractionTransformationWorkflow;
 
-  logger('[data] extraction started');
-  const result: RunDataExtractionTransformationWorkflowResult = await workflowRunner(sourceDocument, runtimeConfig);
-  logger('[data] normalized invoice and calculation ready');
+  logger("[data] extraction started");
+  const result: RunDataExtractionTransformationWorkflowResult =
+    await workflowRunner(sourceDocument, runtimeConfig);
+  logger("[data] normalized invoice and calculation ready");
   logger(JSON.stringify(result.normalizedInvoice));
 
   return result;
@@ -447,7 +487,8 @@ async function runFromCli(): Promise<void> {
 
 if (isDirectExecution(import.meta.url, process.argv)) {
   void runFromCli().catch((error: unknown): void => {
-    const errorMessage: string = error instanceof Error ? error.message : String(error);
+    const errorMessage: string =
+      error instanceof Error ? error.message : String(error);
     console.error(errorMessage);
     process.exitCode = 1;
   });

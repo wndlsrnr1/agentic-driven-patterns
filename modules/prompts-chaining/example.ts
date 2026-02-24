@@ -1,19 +1,20 @@
-import { StringOutputParser } from '@langchain/core/output_parsers';
-import { ChatPromptTemplate } from '@langchain/core/prompts';
-import { RunnableSequence } from '@langchain/core/runnables';
-import { ChatOpenAI } from '@langchain/openai';
-import { resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { StringOutputParser } from "@langchain/core/output_parsers";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { RunnableSequence } from "@langchain/core/runnables";
+import { ChatOpenAI } from "@langchain/openai";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
-const DEFAULT_SYNTHETIC_BASE_URL: string = 'https://api.synthetic.new/openai/v1';
-const DEFAULT_SYNTHETIC_MODEL: string = 'hf:moonshotai/Kimi-K2.5';
+const DEFAULT_SYNTHETIC_BASE_URL: string =
+  "https://api.synthetic.new/openai/v1";
+const DEFAULT_SYNTHETIC_MODEL: string = "hf:moonshotai/Kimi-K2.5";
 
 export const DEFAULT_EXAMPLE_INPUT_TEXT: string =
-  'The new laptop model features a 3.5 GHz octa-core processor, 16GB of RAM, and a 1TB NVMe SSD.';
+  "The new laptop model features a 3.5 GHz octa-core processor, 16GB of RAM, and a 1TB NVMe SSD.";
 
-export const PROMPTS_CHAIN_EXAMPLE_NPM_SCRIPT: string = 'prompts-chain:example';
+export const PROMPTS_CHAIN_EXAMPLE_NPM_SCRIPT: string = "prompts-chain:example";
 export const PROMPTS_CHAIN_EXAMPLE_COMMAND: string =
-  'node --env-file=src/config/.env --loader ts-node/esm src/prompts-chain/example/example.ts';
+  "node --env-file=src/config/.env --loader ts-node/esm src/prompts-chain/example/example.ts";
 
 /**
  * 예제 실행 로그 출력을 위한 로거 함수 계약이다.
@@ -95,27 +96,29 @@ async function runDefaultFullChain(
     },
   });
 
-  const promptExtract: ReturnType<typeof ChatPromptTemplate.fromTemplate> = ChatPromptTemplate.fromTemplate(
-    'Extract the technical specifications from the following text:\n\n{text_input}',
-  );
+  const promptExtract: ReturnType<typeof ChatPromptTemplate.fromTemplate> =
+    ChatPromptTemplate.fromTemplate(
+      "Extract the technical specifications from the following text:\n\n{text_input}",
+    );
 
   const promptTransform: ReturnType<typeof ChatPromptTemplate.fromTemplate> =
     ChatPromptTemplate.fromTemplate(
-    "Transform the following specifications into a JSON object with 'cpu', 'memory', and 'storage' as keys:\n\n{specifications}",
-  );
+      "Transform the following specifications into a JSON object with 'cpu', 'memory', and 'storage' as keys:\n\n{specifications}",
+    );
 
   const extractionChain: StringRunnable<{ text_input: string }> = promptExtract
     .pipe(llm)
     .pipe(new StringOutputParser()) as StringRunnable<{ text_input: string }>;
 
-  const fullChain: StringRunnable<{ text_input: string }> = RunnableSequence.from([
-    {
-      specifications: extractionChain,
-    },
-    promptTransform,
-    llm,
-    new StringOutputParser(),
-  ]) as StringRunnable<{ text_input: string }>;
+  const fullChain: StringRunnable<{ text_input: string }> =
+    RunnableSequence.from([
+      {
+        specifications: extractionChain,
+      },
+      promptTransform,
+      llm,
+      new StringOutputParser(),
+    ]) as StringRunnable<{ text_input: string }>;
 
   const finalResult: string = await fullChain.invoke({ text_input: inputText });
   return finalResult;
@@ -148,10 +151,12 @@ export type RunPromptsChainExampleInput = {
  * @returns 예제 런타임 설정.
  * @throws `SYNTHETIC_API_KEY`가 없을 때 `Error`.
  */
-export function buildRuntimeConfigFromEnv(env: NodeJS.ProcessEnv): PromptsChainRuntimeConfig {
+export function buildRuntimeConfigFromEnv(
+  env: NodeJS.ProcessEnv,
+): PromptsChainRuntimeConfig {
   const apiKey: string | undefined = env.SYNTHETIC_API_KEY?.trim();
   if (!apiKey) {
-    throw new Error('SYNTHETIC_API_KEY is missing.');
+    throw new Error("SYNTHETIC_API_KEY is missing.");
   }
 
   return {
@@ -167,8 +172,10 @@ export function buildRuntimeConfigFromEnv(env: NodeJS.ProcessEnv): PromptsChainR
  * @param argv Node 프로세스 인자 배열.
  * @returns 사용자 입력 문자열 또는 `undefined`.
  */
-export function resolveCliInputText(argv: readonly string[]): string | undefined {
-  const inputText: string = argv.slice(2).join(' ').trim();
+export function resolveCliInputText(
+  argv: readonly string[],
+): string | undefined {
+  const inputText: string = argv.slice(2).join(" ").trim();
   return inputText.length > 0 ? inputText : undefined;
 }
 
@@ -179,7 +186,10 @@ export function resolveCliInputText(argv: readonly string[]): string | undefined
  * @param argv Node 프로세스 인자 배열.
  * @returns 직접 실행 여부.
  */
-export function isDirectExecution(moduleUrl: string, argv: readonly string[]): boolean {
+export function isDirectExecution(
+  moduleUrl: string,
+  argv: readonly string[],
+): boolean {
   const scriptPath: string | undefined = argv[1];
   if (!scriptPath) {
     return false;
@@ -204,14 +214,16 @@ export async function runPromptsChainExample(
   options: RunPromptsChainExampleInput = {},
 ): Promise<PromptsChainExampleResult> {
   const runtimeConfig: PromptsChainRuntimeConfig =
-    options.runtimeConfig ?? buildRuntimeConfigFromEnv(options.env ?? process.env);
+    options.runtimeConfig ??
+    buildRuntimeConfigFromEnv(options.env ?? process.env);
   const inputText: string = options.inputText ?? DEFAULT_EXAMPLE_INPUT_TEXT;
   const logger: Logger = options.log ?? console.log;
-  const chainRunner: FullChainRunner = options.chainRunner ?? runDefaultFullChain;
+  const chainRunner: FullChainRunner =
+    options.chainRunner ?? runDefaultFullChain;
 
   const finalResult: string = await chainRunner(inputText, runtimeConfig);
 
-  logger('--- Final JSON Output ---');
+  logger("--- Final JSON Output ---");
   logger(finalResult);
 
   return {
@@ -234,7 +246,8 @@ async function runFromCli(): Promise<void> {
 
 if (isDirectExecution(import.meta.url, process.argv)) {
   void runFromCli().catch((error: unknown) => {
-    const errorMessage: string = error instanceof Error ? error.message : String(error);
+    const errorMessage: string =
+      error instanceof Error ? error.message : String(error);
     console.error(errorMessage);
     process.exitCode = 1;
   });

@@ -2,7 +2,7 @@
 
 ## Setup
 
-1. Fill `modules/prompts-chaining/.env` with:
+1. Fill `modules/.env` with:
    - `SYNTHETIC_API_KEY`
    - `SYNTHETIC_BASE_URL`
    - `SYNTHETIC_MODEL`
@@ -10,37 +10,40 @@
 2. Install dependencies:
 
 ```bash
-cd modules/prompts-chaining
+cd modules
 npm install
 ```
 
 ## Verify
 
 ```bash
+cd modules
 npm run typecheck
-npm run test
+npm test
 ```
 
-## Run each workflow
+## Run each workflow directly
 
 ```bash
-npm run info
-npm run complex
-npm run data
-npm run content
-npm run conversation
-npm run codegen
-npm run multimodal
+cd modules
+node --env-file=.env --experimental-strip-types ./prompts-chaining/information-processing.workflow.ts
+node --env-file=.env --experimental-strip-types ./prompts-chaining/complex-query-answering.workflow.ts
+node --env-file=.env --experimental-strip-types ./prompts-chaining/data-extraction-transformation.workflow.ts
+node --env-file=.env --experimental-strip-types ./prompts-chaining/content-generation.workflow.ts
+node --env-file=.env --experimental-strip-types ./prompts-chaining/conversational-agent-state.workflow.ts
+node --env-file=.env --experimental-strip-types ./prompts-chaining/code-generation-refinement.workflow.ts
+node --env-file=.env --experimental-strip-types ./prompts-chaining/multimodal-multistep-reasoning.workflow.ts
 ```
 
 Optional CLI input examples:
 
 ```bash
-npm run info -- https://en.wikipedia.org/wiki/Artificial_intelligence
-npm run complex -- "What were the main causes of the stock market crash in 1929, and how did government policy respond?"
-npm run data -- "Vendor: ACME, Amount Due: one thousand USD, Due Date: 2026-03-01"
-npm run content -- "agentic workflows for finance"
-npm run conversation -- "I need a meeting|With Mina and David|Tuesday 10AM"
-npm run codegen -- "Create a typed debounce function"
-npm run multimodal -- https://example.com/image.png
+cd modules
+node --env-file=.env --experimental-strip-types ./prompts-chaining/information-processing.workflow.ts -- https://en.wikipedia.org/wiki/Artificial_intelligence
+node --env-file=.env --experimental-strip-types ./prompts-chaining/complex-query-answering.workflow.ts -- "What were the main causes of the stock market crash in 1929, and how did government policy respond?"
+node --env-file=.env --experimental-strip-types ./prompts-chaining/data-extraction-transformation.workflow.ts -- "Vendor: ACME, Amount Due: one thousand USD, Due Date: 2026-03-01"
+node --env-file=.env --experimental-strip-types ./prompts-chaining/content-generation.workflow.ts -- "agentic workflows for finance"
+node --env-file=.env --experimental-strip-types ./prompts-chaining/conversational-agent-state.workflow.ts -- "I need a meeting|With Mina and David|Tuesday 10AM"
+node --env-file=.env --experimental-strip-types ./prompts-chaining/code-generation-refinement.workflow.ts -- "Create a typed debounce function"
+node --env-file=.env --experimental-strip-types ./prompts-chaining/multimodal-multistep-reasoning.workflow.ts -- https://example.com/image.png
 ```
