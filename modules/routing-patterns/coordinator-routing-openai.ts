@@ -1,6 +1,6 @@
 /**
  * Run:
- * cd modules && node --env-file=.env --experimental-strip-types ./routing-patterns/rout3.ts -- "Book me a hotel in Paris."
+ * cd modules && node --env-file=.env --experimental-strip-types ./routing-patterns/coordinator-routing-openai.ts -- "Book me a hotel in Paris."
  */
 import {
   Agent,
@@ -32,6 +32,7 @@ type AgentsRunnerOutput = {
 
 type AgentsRunner = (requestText: string) => Promise<AgentsRunnerOutput>;
 type OpenAiApiMode = "responses" | "chat_completions";
+type Logger = (message: string) => void;
 
 export type RuntimeConfig = {
   apiKey: string;
@@ -50,6 +51,7 @@ export type RoutingResult = {
 export type RunRout3WorkflowOptions = {
   env?: NodeJS.ProcessEnv;
   agentsRunner?: AgentsRunner;
+  log?: Logger;
 };
 
 const ROUTING_TOOL_INPUT_SCHEMA: z.ZodObject<{ request: z.ZodString }> =
@@ -372,7 +374,9 @@ async function executeAgentsRun(
   requestText: string,
   runtimeConfig: RuntimeConfig,
   apiMode: OpenAiApiMode,
+  logger: Logger,
 ): Promise<AgentsRunnerOutput> {
+  logger(`[routing-openai][engine] Running with API mode: ${apiMode}`);
   const modelProvider: OpenAIProvider = configureAgentsRuntime(
     runtimeConfig,
     apiMode,
@@ -400,6 +404,7 @@ async function executeAgentsRun(
     },
   )) as { finalOutput: unknown };
 
+  logger(`[routing-openai][engine] Completed run with API mode: ${apiMode}`);
   return {
     finalOutput: runResult.finalOutput,
   };
@@ -418,14 +423,18 @@ function isResponsesRouteNotFoundError(error: unknown): boolean {
 async function runWithAgentsSdk(
   requestText: string,
   runtimeConfig: RuntimeConfig,
+  logger: Logger,
 ): Promise<AgentsRunnerOutput> {
   try {
-    return await executeAgentsRun(requestText, runtimeConfig, "responses");
+    return await executeAgentsRun(requestText, runtimeConfig, "responses", logger);
   } catch (error: unknown) {
     if (!isResponsesRouteNotFoundError(error)) {
       throw error;
     }
-    return executeAgentsRun(requestText, runtimeConfig, "chat_completions");
+    logger(
+      "[routing-openai][engine] Responses endpoint unavailable. Falling back to chat_completions",
+    );
+    return executeAgentsRun(requestText, runtimeConfig, "chat_completions", logger);
   }
 }
 
@@ -448,18 +457,28 @@ export async function runRout3Workflow(
   requestText: string,
   options: RunRout3WorkflowOptions = {},
 ): Promise<RoutingResult> {
+  const logger: Logger =
+    options.log ??
+    ((_message: string): void => {
+      return;
+    });
   const runtimeConfig: RuntimeConfig = buildRuntimeConfigFromEnv(
     options.env ?? process.env,
   );
+  logger("[routing-openai][1/5] Runtime config loaded");
   const agentsRunner: AgentsRunner =
     options.agentsRunner ??
     ((inputText: string): Promise<AgentsRunnerOutput> =>
-      runWithAgentsSdk(inputText, runtimeConfig));
+      runWithAgentsSdk(inputText, runtimeConfig, logger));
+  logger("[routing-openai][2/5] Running agent coordinator");
   const runnerOutput: AgentsRunnerOutput = await agentsRunner(requestText);
+  logger("[routing-openai][3/5] Received agent final output");
   const payload: RoutingPayload = toRoutingPayload(
     requestText,
     runnerOutput.finalOutput,
   );
+  logger("[routing-openai][4/5] Normalized routing payload");
+  logger("[routing-openai][5/5] Built final routing result");
   return toRoutingResult(requestText, runtimeConfig.modelName, payload);
 }
 
@@ -467,9 +486,13 @@ export async function runRout3FromCli(
   env: NodeJS.ProcessEnv = process.env,
   argv: readonly string[] = process.argv,
 ): Promise<void> {
+  const logger: Logger = (message: string): void => {
+    console.log(message);
+  };
   const requestText: string = resolveRequestFromCliOrDefault(argv);
   const routingResult: RoutingResult = await runRout3Workflow(requestText, {
     env,
+    log: logger,
   });
   console.log(JSON.stringify(routingResult, null, 2));
 }

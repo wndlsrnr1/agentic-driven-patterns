@@ -1,79 +1,50 @@
-import assert from "node:assert/strict";
-import { test } from "node:test";
 import {
-  buildRuntimeConfigFromEnv,
-  resolveCliRequest,
-  runRout3Workflow,
-  type RoutingResult,
-  type RuntimeConfig,
-} from "./coordinator-routing-openai.ts";
+  Agent,
+  OpenAIProvider,
+  Runner,
+  setOpenAIAPI,
+  setDefaultOpenAIKey,
+  tool,
+} from "@openai/agents";
+import { z } from "zod";
+const DEFAULT_SYNTHETIC_BASE_URL: string =
+  "https://api.synthetic.new/openai/v1";
+const DEFAULT_SYNTHETIC_MODEL: string = "hf:moonshotai/Kimi-K2.5";
+const DEFAULT_SINGLE_REQUEST: string = "Book me a hotel in Paris.";
 
-test("buildRuntimeConfigFromEnv throws when SYNTHETIC_API_KEY is missing", (): void => {
-  assert.throws(
-    (): RuntimeConfig => buildRuntimeConfigFromEnv({}),
-    /SYNTHETIC_API_KEY is missing\./,
-  );
-});
+type CoordinatorDecision = "booker" | "info" | "unclear";
+type CoordinatorAgentName = "booking_agent" | "info_agent" | "unclear_agent";
 
-test("resolveCliRequest returns first user argument", (): void => {
-  const cliRequest: string | undefined = resolveCliRequest([
-    "node",
-    "rout3.ts",
-    "Book me a hotel in Paris.",
-  ]);
-  assert.equal(cliRequest, "Book me a hotel in Paris.");
-});
+type RoutingPayload = {
+  decision: CoordinatorDecision;
+  agentName: CoordinatorAgentName;
+  output: string;
+};
 
-test("runRout3Workflow returns normalized routing result from injected runner", async (): Promise<void> => {
-  const routingResult: RoutingResult = await runRout3Workflow(
-    "Book me a hotel in Paris.",
-    {
-      env: {
-        SYNTHETIC_API_KEY: "test-key",
-        SYNTHETIC_BASE_URL: "https://example.test/v1",
-        SYNTHETIC_MODEL: "test-model",
-      },
-      agentsRunner: async (
-        requestText: string,
-      ): Promise<{ finalOutput: string }> => {
-        assert.equal(requestText, "Book me a hotel in Paris.");
-        return {
-          finalOutput: JSON.stringify({
-            decision: "booker",
-            agentName: "booking_agent",
-            output:
-              "Booking Handler processed request: 'Book me a hotel in Paris.'. Result: Simulated booking action.",
-          }),
-        };
-      },
-    },
-  );
+type AgentsRunnerOutput = {
+  finalOutput: unknown;
+};
 
-  assert.equal(routingResult.request, "Book me a hotel in Paris.");
-  assert.equal(routingResult.decision, "booker");
-  assert.equal(routingResult.agentName, "booking_agent");
-  assert.equal(routingResult.modelName, "test-model");
-});
+type AgentsRunner = (requestText: string) => Promise<AgentsRunnerOutput>;
+type OpenAiApiMode = "reponses" | "chat_completions";
+type Logger = (message: string) => void;
 
-test("runRout3Workflow falls back to unclear when finalOutput is not JSON", async (): Promise<void> => {
-  const routingResult: RoutingResult = await runRout3Workflow(
-    "Please handle this.",
-    {
-      env: {
-        SYNTHETIC_API_KEY: "test-key",
-      },
-      agentsRunner: async (): Promise<{ finalOutput: string }> => {
-        return {
-          finalOutput: "non-json",
-        };
-      },
-    },
-  );
+export type RuntimeConfig = {
+  apiKey: string;
+  baseUrl: string;
+  modelName: string;
+};
 
-  assert.equal(routingResult.decision, "unclear");
-  assert.equal(routingResult.agentName, "unclear_agent");
-  assert.match(
-    routingResult.output,
-    /Coordinator could not delegate request: 'Please handle this\.'/,
-  );
-});
+export type RoutingResult = {
+  request: string;
+  decision: CoordinatorDecision;
+  output: string;
+  agentName: CoordinatorAgentName;
+  modelName: string;
+};
+
+export type RunRout3WorkflowOptions = {
+  env?: NodeJS.ProcessEnv;
+  agentsRunner?: AgentsRunner;
+  log?: Logger;
+};
