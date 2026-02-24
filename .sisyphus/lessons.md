@@ -68,3 +68,7 @@
 - Prevention Rule 1: When a user says "아래 코드를 그렇게 바꿔", interpret it as immediate in-place refactor with the exact style just discussed (no extra explanation step).
 - Pattern: User escalated from local snippet cleanup to whole-file restructuring focused on readable top-level flow and clear responsibilities.
 - Prevention Rule 1: When user says "전체 그렇게 리팩토링", refactor the entire file structure (not only the selected block) and keep a single explicit top-level execution entry.
+- Pattern: User corrected tutorial direction from broad infra refactor to learner-first execution flow (independent runnable tutorials, minimal CLI/env, internal fixed flow).
+- Prevention Rule 1: When user asks for tutorial simplicity, prioritize runnable per-library scripts and explicit step logs over large-scale naming/architecture normalization.
+- Prevention Rule 2: Keep CLI as a thin entrypoint only; avoid adding option parsing unless explicitly requested.
+- Prevention Rule 3: Hardcode learning context (topic/model/prompt/base URL) in code and restrict env usage to the minimal secret-key injection path.

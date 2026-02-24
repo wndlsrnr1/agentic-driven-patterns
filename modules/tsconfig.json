@@ -11,5 +11,9 @@
     "forceConsistentCasingInFileNames": true,
     "types": ["node"]
   },
-  "include": ["./prompts-chaining/*.ts", "./routing-patterns/*.ts"]
+  "include": [
+    "./prompts-chaining/*.ts",
+    "./routing-patterns/*.ts",
+    "./paralleization/*.ts"
+  ]
 }

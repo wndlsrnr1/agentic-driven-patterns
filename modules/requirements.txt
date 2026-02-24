@@ -1,0 +1,4 @@
+google-adk>=0.3.0
+langchain-core>=0.3.0
+langchain-openai>=0.3.0
+openai-agents>=0.10.1
