@@ -72,3 +72,16 @@
 - Prevention Rule 1: When user asks for tutorial simplicity, prioritize runnable per-library scripts and explicit step logs over large-scale naming/architecture normalization.
 - Prevention Rule 2: Keep CLI as a thin entrypoint only; avoid adding option parsing unless explicitly requested.
 - Prevention Rule 3: Hardcode learning context (topic/model/prompt/base URL) in code and restrict env usage to the minimal secret-key injection path.
+
+## 2026-02-25
+
+- Pattern: I reported execution completion even though real model output was empty due ignored ADK error events.
+- Prevention Rule 1: For ADK runs, inspect event-level `errorMessage`/`errorCode` before claiming success.
+- Prevention Rule 2: If model output is empty, fail explicitly with the runtime error instead of returning a completed fallback.
+- Prevention Rule 3: Validate model availability with the same API key and update deprecated model IDs before final reporting.
+- Pattern: User explicitly asked for non-verbose/minimal changes, so extra guards or architecture cleanup caused friction.
+- Prevention Rule 1: If user says "장황하지 않게", touch only the requested line(s)/block and avoid additional improvements.
+- Prevention Rule 2: Keep response and patch scope strictly to request intent; postpone optional cleanup unless asked.
+- Pattern: User asked for concise changes ("장황하지 않게"), so long explanations and broad refactors reduce usability.
+- Prevention Rule 1: When user requests concise work, make the smallest direct edit that fixes the exact issue.
+- Prevention Rule 2: Keep completion message to changed points + run result only.

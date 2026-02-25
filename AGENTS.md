@@ -23,10 +23,15 @@ If this line is missing, do not answer and retry internally.
 - Ruthlessly iterate on these lessons until mistake rate drops
 - keep `.sisyphus/lessons.md` under 200 lines
 
-# 조사 원칙
+## 조사 원칙
 
 니가 조사해서 알수 있는 것은 나에게 묻지마라
 조사 한후에도 모르겠다면 그때 물어봐라
+
+## Shared-Only Extraction
+
+Do not split logic into a separte function unless that logic is truly shared and called by at least two different function definitions.
+if it is used in only one function, extracting it is prohibit ed and it must remain inline in that function
 
 ## When plans
 
