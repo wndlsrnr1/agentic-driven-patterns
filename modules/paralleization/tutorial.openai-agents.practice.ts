@@ -17,10 +17,6 @@ export async function run(): Promise<{ biology: unknown; chemistry: unknown }> {
     useResponses: false,
   });
 
-  /**
-   * 안해도됨
-   */
-
   //   setDefaultOpenAIKey(process.env.SYNTHETIC_API_KEY || "");
   //   setOpenAIAPI("chat_completions");
 

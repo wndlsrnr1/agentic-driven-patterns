@@ -22,6 +22,10 @@ function resolveModelConfig(): ModelConfig {
 async function runLanchainExaple(): Promise<string> {
   const modelConfig: ModelConfig = resolveModelConfig();
 
+  /**
+   * ChatOpenAI
+   * 모델 생성
+   */
   const model: ChatOpenAI = new ChatOpenAI({
     apiKey: modelConfig.apiKey,
     model: modelConfig.modelName,
@@ -31,22 +35,26 @@ async function runLanchainExaple(): Promise<string> {
 
   const parser: StringOutputParser = new StringOutputParser();
 
+  /**
+   * ChatPromptTemplate.fromMessages
+   * 템플릿 생성기
+   */
   const summaryPrompt: ReturnType<typeof ChatPromptTemplate.fromMessages> =
     ChatPromptTemplate.fromMessages([
       ["system", "Summarize the following topic in one sentence."],
-      ["user", "{topic1}{topic2}"],
+      ["user", "{topic}"],
     ]);
 
   const questikonPrompt: ReturnType<typeof ChatPromptTemplate.fromMessages> =
     ChatPromptTemplate.fromMessages([
       ["system", "Generate two interesting questions for this topic."],
-      ["user", "{topic1}{topic2}"],
+      ["user", "{topic}"],
     ]);
 
   const keywordsPrompt: ReturnType<typeof ChatPromptTemplate.fromMessages> =
     ChatPromptTemplate.fromMessages([
       ["system", "Extract three key terms as comma-separated text."],
-      ["user", "{topic1}"],
+      ["user", "{topic}"],
     ]);
 
   /**
@@ -67,6 +75,12 @@ async function runLanchainExaple(): Promise<string> {
    * 이런 형식으로 나올대 데이터 출력 형식 고정해준다
    */
 
+  /**
+   * RunnableMap
+   * 병렬 실행
+   *
+   * topic에 대한 요약, 질문, 키워드를 병렬로 생성한다
+   */
   const parallelMap: RunnableMap<
     {
       topic1: string;
@@ -83,6 +97,9 @@ async function runLanchainExaple(): Promise<string> {
     keywords: keywordsPrompt.pipe(model).pipe(parser),
   });
 
+  /**
+   * 객체를 파싱해서 template에 값을 넣어준다.
+   */
   const result: { summary: string; questions: string; keywords: string } =
     await parallelMap.invoke({
       topic1: "Play alone in my room. and writing some code in my room.",
