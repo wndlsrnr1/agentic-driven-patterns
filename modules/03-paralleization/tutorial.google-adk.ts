@@ -13,8 +13,10 @@ import {
   type Event,
 } from "@google/adk";
 import { createUserContent, type Content } from "@google/genai";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
-type GoogleAdkConfig = {
+export type GoogleAdkConfig = {
   apiKey: string;
   modelName: string;
   topic: string;
@@ -22,25 +24,21 @@ type GoogleAdkConfig = {
   userId: string;
 };
 
-type GoogleAdkResult = {
+export type GoogleAdkResult = {
   report: string;
 };
 
-type AdkRuntimeErrorEvent = Event & {
-  errorCode?: string;
-  errorMessage?: string;
-};
-
-function resolveGoogleAdkConfig(): GoogleAdkConfig {
-  const apiKey: string | undefined =
-    process.env.GEMINI_API_KEY?.trim() || process.env.GOOGLE_API_KEY?.trim();
+export function resolveGoogleAdkConfig(
+  env: NodeJS.ProcessEnv = process.env,
+): GoogleAdkConfig {
+  const apiKey: string | undefined = env.GEMINI_API_KEY?.trim() || env.GOOGLE_API_KEY?.trim();
   if (!apiKey) {
     throw new Error("GEMINI_API_KEY or GOOGLE_API_KEY is missing.");
   }
 
   const config: GoogleAdkConfig = {
     apiKey,
-    modelName: "gemini-2.5-flash",
+    modelName: env.GOOGLE_MODEL?.trim() || "gemini-2.5-flash",
     topic: "Artificial Intelligence in Healthcare",
     appName: "parallelization-tutorial-adk",
     userId: "parallelization-tutorial-user",
@@ -48,8 +46,9 @@ function resolveGoogleAdkConfig(): GoogleAdkConfig {
   return config;
 }
 
-export async function run(): Promise<GoogleAdkResult> {
-  const config: GoogleAdkConfig = resolveGoogleAdkConfig();
+export async function run(
+  config: GoogleAdkConfig = resolveGoogleAdkConfig(process.env),
+): Promise<GoogleAdkResult> {
   const model: Gemini = new Gemini({
     model: config.modelName,
     apiKey: config.apiKey,
@@ -87,6 +86,7 @@ export async function run(): Promise<GoogleAdkResult> {
     agent: workflow,
     appName: config.appName,
   });
+
   const session: { id: string } = await runner.sessionService.createSession({
     appName: config.appName,
     userId: config.userId,
@@ -104,14 +104,53 @@ export async function run(): Promise<GoogleAdkResult> {
     events.push(event);
   }
 
-  const report: string = extractWorkflowReport(events);
-  const result: GoogleAdkResult = {
-    report,
-  };
+  let report: string = "";
+  for (let index: number = events.length - 1; index >= 0; index -= 1) {
+    const event: Event = events[index]!;
+    if (!isFinalResponse(event)) {
+      continue;
+    }
 
+    const text: string = stringifyContent(event).trim();
+    if (text.length > 0) {
+      report = text;
+      break;
+    }
+  }
+
+  if (report.length === 0) {
+    for (let index: number = events.length - 1; index >= 0; index -= 1) {
+      const event: Event = events[index]!;
+      const text: string = stringifyContent(event).trim();
+      if (text.length > 0) {
+        report = text;
+        break;
+      }
+    }
+  }
+
+  if (report.length === 0) {
+    throw new Error("Google ADK workflow completed without a text response.");
+  }
+
+  const result: GoogleAdkResult = { report };
   return result;
 }
 
-const result: GoogleAdkResult = await run();
-console.log(result.report);
-console.log(result);
+const isNodeTestContext: boolean = process.env.NODE_TEST_CONTEXT !== undefined;
+const cliPath: string | undefined = process.argv[1];
+if (!isNodeTestContext && cliPath) {
+  const cliUrl: string = pathToFileURL(resolve(process.cwd(), cliPath)).href;
+  if (cliUrl === import.meta.url) {
+    void run()
+      .then((result: GoogleAdkResult): void => {
+        console.log(result.report);
+        console.log(result);
+      })
+      .catch((error: unknown): void => {
+        const message: string = error instanceof Error ? error.message : String(error);
+        console.error(message);
+        process.exitCode = 1;
+      });
+  }
+}

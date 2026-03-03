@@ -85,3 +85,6 @@
 - Pattern: User asked for concise changes ("장황하지 않게"), so long explanations and broad refactors reduce usability.
 - Prevention Rule 1: When user requests concise work, make the smallest direct edit that fixes the exact issue.
 - Prevention Rule 2: Keep completion message to changed points + run result only.
+- Pattern: User requested simplification but later corrected that prompt wording had been altered unintentionally.
+- Prevention Rule 1: During refactors, treat prompt/instruction text as behavioral contract unless user explicitly asks to rewrite prompts.
+- Prevention Rule 2: When simplifying orchestration, separate "flow refactor" from "prompt content change" and preserve original prompt literals by default.
