@@ -120,3 +120,19 @@
 - Prevention Rule 1: For SDK migration skills, define boundaries first (orchestration migration vs model-only swap) before writing mapping tables.
 - Prevention Rule 2: Include explicit selection rules for app-controlled sequence vs handoff when source has workflow agents.
 - Prevention Rule 3: Treat session/state, tool error model, and event/tracing contracts as required parity sections, not optional notes.
+- Pattern: User reported skill-loading YAML parse errors caused by unquoted `description` values containing `:` in `SKILL.md` frontmatter.
+- Prevention Rule 1: In all `SKILL.md` frontmatter, always quote `description` values with double quotes.
+- Prevention Rule 2: After editing skill metadata, re-check each edited file's first frontmatter block (`--- ... ---`) for YAML-safe scalars before finishing.
+- Pattern: User asked for a follow-up integration step (registering new agent in `.codex/config.toml`) after file creation, implying initial completion scope was too narrow.
+- Prevention Rule 1: When creating a new `.codex/agents/*.toml`, always check `.codex/config.toml` for matching `[agents.<role>]` registration in the same turn unless user explicitly says not to.
+- Prevention Rule 2: Finalize agent-creation tasks with a two-file completion checklist: agent file present + config entry wired.
+- Pattern: Session role was explicitly set to `implement-orchestrator`, but I still moved toward direct file implementation under default "implement immediately" behavior.
+- Prevention Rule 1: If user sets/acknowledges an orchestrator role, treat delegation-only constraints in that role file as highest-priority local execution contract for the session.
+- Prevention Rule 2: Before any code edit under orchestrator role, confirm path: `approved plan present` -> `subagent delegation` -> `wave verification`; if any link is missing, do not implement directly.
+- Prevention Rule 3: When two instructions conflict (global default direct-implementation vs role-specific delegation), explicitly surface the conflict and follow the narrower role-specific constraint.
+- Pattern: User asked for exact provenance of an instruction, and I initially gave summarized wording without exact location/quote.
+- Prevention Rule 1: When citing prompt constraints, always provide exact section path (e.g., `developer message -> Working with the user -> Autonomy and persistence`) and verbatim key sentence.
+- Prevention Rule 2: Distinguish clearly between direct quote and my paraphrase in the same response.
+- Pattern: While fixing invalid config format, full-file replacement looked like unintended deletion to the user.
+- Prevention Rule 1: For config normalization patches, announce explicitly that structural wrapping (e.g., `developer_instructions = \"\"\"...\"\"\"`) requires moving existing content, not removing policy.
+- Prevention Rule 2: Prefer staged/incremental edits for high-visibility config files and show post-edit diff intent before applying large replacements.

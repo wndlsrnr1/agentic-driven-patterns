@@ -6,7 +6,8 @@ import {
 } from "@langchain/core/messages";
 import { ChatOpenAI } from "@langchain/openai";
 
-const DEFAULT_SYNTHETIC_BASE_URL: string = "https://api.synthetic.new/openai/v1";
+const DEFAULT_SYNTHETIC_BASE_URL: string =
+  "https://api.synthetic.new/openai/v1";
 const DEFAULT_SYNTHETIC_MODEL: string = "hf:moonshotai/Kimi-K2.5";
 
 export type ReflectionLangChainConfig = {
@@ -33,7 +34,8 @@ export async function runReflectionLangChain(
   env: NodeJS.ProcessEnv = process.env,
 ): Promise<ReflectionLangChainResult> {
   const apiKey: string = env.SYNTHETIC_API_KEY?.trim() ?? "";
-  const baseUrl: string = env.SYNTHETIC_BASE_URL?.trim() || DEFAULT_SYNTHETIC_BASE_URL;
+  const baseUrl: string =
+    env.SYNTHETIC_BASE_URL?.trim() || DEFAULT_SYNTHETIC_BASE_URL;
   const modelName: string =
     env.SYNTHETIC_MODEL?.trim() || DEFAULT_SYNTHETIC_MODEL;
   if (apiKey.length === 0) {

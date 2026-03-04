@@ -15,7 +15,7 @@ description: Use when creating executable implementation plans for complex devel
 
 **Single-source rule:** 이 문서 자체를 실행 기준으로 사용하며, 외부 참조 없이도 동일한 계획 품질을 보장해야 한다.
 
-**Save to:** `.sisyphus/plans/<filename>.md`
+**Save to:** `.agents/plans/<filename>.md`
 
 **Code style baseline:** OOP, DDD, Clean Code, Effective Software Design, SSOT.
 
@@ -79,12 +79,14 @@ description: Use when creating executable implementation plans for complex devel
 ## 현재 프로젝트 컨텍스트
 
 ### 시스템 개요
+
 - 프로젝트명:
 - 핵심 도메인:
 - 기술 스택:
 - 이 계획에 필요한 skills:
 
 ### 현재 상황
+
 - 문제/요구사항:
 - 관련 코드/모듈:
 - 제약 조건:
@@ -144,8 +146,8 @@ description: Use when creating executable implementation plans for complex devel
 ### 2. 궁극적인 목표 + 측정 기준
 
 | 목표 | 측정 기준 |
-|------|----------|
-| 예시 | 예시 |
+| ---- | --------- |
+| 예시 | 예시      |
 
 ### 3. 작업 목록
 
@@ -159,6 +161,7 @@ description: Use when creating executable implementation plans for complex devel
 **필요 스킬**: `[systematic-debugging, java-service-rules]`
 
 **주요 변경 지점 (정확한 경로):**
+
 - Create: `path/to/file`
 - Modify: `path/to/file`
 - Test: `path/to/test`
@@ -168,6 +171,7 @@ description: Use when creating executable implementation plans for complex devel
 **롤백 계획**:
 
 **완료 기준:**
+
 - [ ] 테스트 통과 조건
 - [ ] 검증 명령 + 기대 결과
 ```
@@ -182,13 +186,14 @@ P2 → P3
 ### 5. 조사 필요 항목
 
 | 항목 | 조사 이유 | 조사 방법 | 결정 기준 |
-|------|----------|----------|----------|
+| ---- | --------- | --------- | --------- |
 
 ### 6. 검증/완료 기준
 
 ```markdown
 ## 전체 완료 조건
-- [ ] 모든 P* 작업 🟢 완료
+
+- [ ] 모든 P\* 작업 🟢 완료
 - [ ] 기존 테스트 통과
 - [ ] 신규 테스트 추가
 - [ ] 요구 성능/품질 기준 충족
@@ -200,18 +205,22 @@ P2 → P3
 ## 📌 컨텍스트 요약 (다른 세션 전달용)
 
 ### 현재 진행 상황
+
 - 완료:
 - 진행중:
 - 블로킹:
 
 ### 핵심 결정 사항
-- 
+
+-
 
 ### 주의 사항
-- 
+
+-
 
 ### 다음 작업자에게
-- 
+
+-
 ```
 
 ---
@@ -221,11 +230,13 @@ P2 → P3
 ```markdown
 **Step 1:** failing test 작성 (코드 전체)
 **Step 2:** 테스트 실행 및 실패 확인
+
 - Command:
 - Expected: FAIL (요구사항 미구현 원인)
 
 **Step 3:** 최소 구현
 **Step 4:** 테스트 실행 및 통과 확인
+
 - Command:
 - Expected: PASS
 
@@ -243,7 +254,7 @@ P2 → P3
 - [ ] 조사 필요 항목 표 포함
 - [ ] 검증 명령과 기대 결과가 구체적임
 - [ ] 세션 인수인계 템플릿 포함
-- [ ] 저장 경로가 `.sisyphus/plans/<filename>.md`로 명시됨
+- [ ] 저장 경로가 `.agents/plans/<filename>.md`로 명시됨
 
 ---
 
@@ -251,4 +262,4 @@ P2 → P3
 
 계획 저장 후 다음 문장을 사용한다.
 
-`Plan saved to .sisyphus/plans/<filename>.md. 이 문서 규약을 기준으로 superpowers:executing-plans를 사용해 실행한다.`
+`Plan saved to .agents/plans/<filename>.md. 이 문서 규약을 기준으로 superpowers:executing-plans를 사용해 실행한다.`
