@@ -1,9 +1,5 @@
 # Repository Guidelines
 
-## ROLE
-
-You are a senior software engineer who prioritizes code economy, reusability, and maintainability above all else. You do not merely write code that works; you design structures that are scalable in the long term and easy to understand. You consistently operate with a strong awareness of development principles and design responsibilities, eliminating unnecessary complexity and focusing on what truly matters. Your goal is not to produce code that merely looks clever, but code that remains stable, clear, and maintainable over time.
-
 ## GLOBAL SKILL GATE (HARD)
 
 Before ANY response (including greetings), invoke skill `using-superpowers`.
@@ -78,43 +74,9 @@ Semantic search is your MAIN exploration tool.
 
 Bias towards not asking the user for help if you can find the answer yourself.
 
-## Project Structure & Module Organization
-
-- `adp/server/src/prompts-chain`는 아래 7개 구조만 사용한다.
-  - `config`: 런타임 설정/토큰/설정 DTO (`config/dto` 포함)
-  - `service`: 유스케이스 오케스트레이션과 서비스 DTO (`service/dto`)
-  - `repository`: 영속/외부 I/O 조합 계층, 비즈니스 분기 금지
-  - `entity`: 도메인 값/불변성 검증
-  - `controller`: HTTP 경계, 입력 검증/서비스 위임만 수행
-  - `client`: 외부 LLM 연동 구현
-  - `utils`: 순수 파싱/유틸리티 로직
-- prompts-chain 의존 방향은 `controller -> service -> repository -> client`로 고정한다.
-- DTO 위치 규칙:
-  - API 계약 DTO는 `service/dto`
-  - 런타임 설정 DTO는 `config/dto`
-- API 계약을 변경하면 `adp/client` API 모듈과 소비 컴포넌트를 같은 작업에서 동시 반영한다.
-
 ## Build, Test, and Development Commands
 
-## Coding Style & Naming Conventions
-
-- TypeScript/React: 2-space indentation; `PascalCase` for components (`ConfirmModal.tsx`), `camelCase` for hooks/utilities (`useMeetings.ts`), and grouped folders by feature or layer.
-- Follow existing file naming patterns and keep module boundaries clear (`controller` -> `service` -> `repository`).
-- No dedicated lint script is currently defined; rely on TypeScript checks, tests, and consistent existing style.
-
-## Testing Guidelines
-
-- 서버 테스트 파일은 `adp/server/test/**/*.spec.ts`에만 작성한다.
-- `adp/server/src/**/*.spec.ts` 신규 작성은 금지한다.
-- Jest는 `adp/server/test/**`만 테스트 대상으로 간주한다.
-- 구조 변경/계약 변경 시 최소 검증:
-  - `cd adp/server && npm test -- --runInBand`
-  - `cd adp/server && npm run typecheck && npm run build`
-  - `cd adp/client && npm run typecheck && npm run build`
-
-## Commit & Pull Request Guidelines
-
-## Security & Configuration Tips
+Not Yet
 
 ## Skills
 

@@ -88,3 +88,35 @@
 - Pattern: User requested simplification but later corrected that prompt wording had been altered unintentionally.
 - Prevention Rule 1: During refactors, treat prompt/instruction text as behavioral contract unless user explicitly asks to rewrite prompts.
 - Prevention Rule 2: When simplifying orchestration, separate "flow refactor" from "prompt content change" and preserve original prompt literals by default.
+
+## 2026-03-03
+
+- Pattern: User added content to an already-fixed file, reintroducing syntax/indentation breakage via accidental block concatenation.
+- Prevention Rule 1: After each user-requested formatting fix, re-run `py_compile` on all sibling example `.py` files in the same directory, not only the edited file.
+- Prevention Rule 2: If a file contains mixed script fragments from different examples, remove out-of-scope appended fragments and preserve only the file's intended example flow.
+- Pattern: User explicitly wanted an added code block preserved, but I removed it while fixing formatting.
+- Prevention Rule 1: When user says "add this", preserve and format the provided block first; do not delete as out-of-scope unless user asks.
+- Prevention Rule 2: For broken snippets with `break`/context dependency, add minimal surrounding context so the block remains present and syntactically valid.
+- Pattern: User corrected generation scope to specific source paths, destination directory, and strict formatting constraint (no comments).
+- Prevention Rule 1: For file generation requests, restate and enforce exact source path(s), target path, tech stack, and style constraints before writing.
+- Prevention Rule 2: When user says "주석 제외", strip all explanatory comments from generated code even if reference style file contains comments.
+- Pattern: User asked to increase reusability with "Agent spec", and library-level refactor can overfit to unstable package typings.
+- Prevention Rule 1: When user asks for "spec-based reusability", first encode shared role/prompt contracts as typed spec objects (SSOT) inside the target file.
+- Prevention Rule 2: Prefer the repository's currently type-stable runtime path unless user explicitly requires a specific SDK package migration.
+- Pattern: User demanded official OpenAI library conformance, and assumptions without citing docs caused trust loss.
+- Prevention Rule 1: For OpenAI SDK refactors, verify against current official docs first and align request shape (`responses.create`, `instructions`, `input`, `output_text`) before editing.
+- Pattern: User pointed to a concrete reference file to define the expected pattern, and any alternate pattern was rejected.
+- Prevention Rule 1: When user says "look at this file", treat that file as the implementation contract and mirror its architecture first.
+- Pattern: User explicitly requested a concrete SDK composition (`Agent + run + MemorySession`), but I kept a different execution primitive (`Runner`) and missed the contract.
+- Prevention Rule 1: When the user specifies exact classes/functions to use, implement that exact composition first and avoid substituting with "equivalent" abstractions.
+- Prevention Rule 2: If an API name is uncertain (e.g., InMemory runner vs session), verify package exports immediately and align the final code with the user's provided snippet.
+- Pattern: User requested project-style runtime adaptation (SYNTHETIC env/baseURL) without changing core workflow, and I initially focused on structural parity only.
+- Prevention Rule 1: When asked for "project style", apply repository runtime config conventions (env key names/default base URL/provider wiring) while preserving the same business flow.
+- Prevention Rule 2: Separate "execution flow changes" from "runtime wiring changes"; prefer only runtime wiring when user says logic must stay intact.
+
+## 2026-03-04
+
+- Pattern: User requested Google ADK/GenAI -> OpenAI Agents skill with runtime-semantics equivalence, but initial skill draft emphasized primitive mapping and missed explicit decision matrices for determinism/session/tool/event policy.
+- Prevention Rule 1: For SDK migration skills, define boundaries first (orchestration migration vs model-only swap) before writing mapping tables.
+- Prevention Rule 2: Include explicit selection rules for app-controlled sequence vs handoff when source has workflow agents.
+- Prevention Rule 3: Treat session/state, tool error model, and event/tracing contracts as required parity sections, not optional notes.

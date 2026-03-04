@@ -12,8 +12,8 @@
     "types": ["node"]
   },
   "include": [
-    "./prompts-chaining/*.ts",
-    "./routing-patterns/*.ts",
-    "./paralleization/*.ts"
+    "01-prompts-chaining/*.ts",
+    "02-routing-patterns/*.ts",
+    "03-paralleization/*.ts"
   ]
 }

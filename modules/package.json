@@ -24,6 +24,7 @@
     "@langchain/core": "^0.3.79",
     "@langchain/openai": "^0.6.11",
     "@openai/agents": "^0.3.0",
+    "openai": "^6.4.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
