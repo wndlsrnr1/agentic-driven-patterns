@@ -12,9 +12,8 @@ import {
 } from "@langchain/core/runnables";
 import { ChatOpenAI } from "@langchain/openai";
 
-const DEFAULT_SYNTHETIC_BASE_URL: string =
-  "https://api.synthetic.new/openai/v1";
-const DEFAULT_SYNTHETIC_MODEL: string = "hf:moonshotai/Kimi-K2.5";
+const DEFAULT_BASE_URL: string = "https://api.synthetic.new/openai/v1";
+const DEFAULT_MODEL: string = "hf:moonshotai/Kimi-K2.5";
 const DEFAULT_SINGLE_REQUEST: string = "Book me a hotel in Paris.";
 
 const ROUTER_SYSTEM_PROMPT: string = [
@@ -83,9 +82,9 @@ export function buildRuntimeConfigFromEnv(
   env: NodeJS.ProcessEnv,
 ): RuntimeConfig {
   const runtimeConfig: RuntimeConfig = {
-    apiKey: requireEnvValue(env, "SYNTHETIC_API_KEY"),
-    baseUrl: env.SYNTHETIC_BASE_URL?.trim() ?? DEFAULT_SYNTHETIC_BASE_URL,
-    modelName: env.SYNTHETIC_MODEL?.trim() ?? DEFAULT_SYNTHETIC_MODEL,
+    apiKey: requireEnvValue(env, "API_KEY"),
+    baseUrl: env.BASE_URL?.trim() ?? DEFAULT_BASE_URL,
+    modelName: env.MODEL?.trim() ?? DEFAULT_MODEL,
   };
   return runtimeConfig;
 }

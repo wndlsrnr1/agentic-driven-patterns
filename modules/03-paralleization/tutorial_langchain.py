@@ -34,10 +34,10 @@ def resolve_langchain_config() -> LangchainConfig | None:
             topic="Artificial Intelligence in Healthcare",
         )
 
-    synthetic_api_key: str = os.getenv("SYNTHETIC_API_KEY", "").strip()
-    if synthetic_api_key:
+    API_KEY: str = os.getenv("API_KEY", "").strip()
+    if API_KEY:
         return LangchainConfig(
-            api_key=synthetic_api_key,
+            api_key=API_KEY,
             model_name="hf:moonshotai/Kimi-K2.5",
             base_url="https://api.synthetic.new/openai/v1",
             topic="Artificial Intelligence in Healthcare",
@@ -53,7 +53,7 @@ async def run_langchain_tutorial(log: StepLogger = print) -> TutorialStepResult:
             step_id=STEP_ID,
             library=LIBRARY,
             status="skipped",
-            message="OPENAI_API_KEY or SYNTHETIC_API_KEY is missing.",
+            message="OPENAI_API_KEY or API_KEY is missing.",
         )
 
     log("[langchain] STEP 1/3 setup")

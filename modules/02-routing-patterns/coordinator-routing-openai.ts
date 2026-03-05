@@ -18,9 +18,8 @@ import {
 } from "@openai/agents";
 import { z } from "zod";
 
-const DEFAULT_SYNTHETIC_BASE_URL: string =
-  "https://api.synthetic.new/openai/v1";
-const DEFAULT_SYNTHETIC_MODEL: string = "hf:moonshotai/Kimi-K2.5";
+const DEFAULT_BASE_URL: string = "https://api.synthetic.new/openai/v1";
+const DEFAULT_MODEL: string = "hf:moonshotai/Kimi-K2.5";
 
 const DEFAULT_COORDINATOR_REQUESTS: Array<string> = [
   "Book me a flight to London.",
@@ -44,19 +43,16 @@ const ROUTING_TOOL_INPUT_SCHEMA: z.ZodObject<{ request: z.ZodString }> =
   });
 
 function buildRuntimeConfig(): RuntimeConfig {
-  const apiKey: string | undefined = process.env.SYNTHETIC_API_KEY?.trim();
+  const apiKey: string | undefined = process.env.API_KEY?.trim();
 
   if (!apiKey) {
-    throw new Error(
-      "SYNTHETIC_API_KEY is missing. Please set it in your .env file.",
-    );
+    throw new Error("API_KEY is missing. Please set it in your .env file.");
   }
 
   const runtimeConfig: RuntimeConfig = {
     apiKey,
-    baseUrl:
-      process.env.SYNTHETIC_BASE_URL?.trim() ?? DEFAULT_SYNTHETIC_BASE_URL,
-    modelName: process.env.SYNTHETIC_MODEL?.trim() ?? DEFAULT_SYNTHETIC_MODEL,
+    baseUrl: process.env.BASE_URL?.trim() ?? DEFAULT_BASE_URL,
+    modelName: process.env.MODEL?.trim() ?? DEFAULT_MODEL,
   };
 
   return runtimeConfig;

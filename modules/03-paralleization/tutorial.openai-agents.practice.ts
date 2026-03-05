@@ -12,12 +12,12 @@ import {
 
 export async function run(): Promise<{ biology: unknown; chemistry: unknown }> {
   const provider: OpenAIProvider = new OpenAIProvider({
-    apiKey: process.env.SYNTHETIC_API_KEY || "",
-    baseURL: process.env.SYNTHETIC_BASE_URL || "",
+    apiKey: process.env.API_KEY || "",
+    baseURL: process.env.BASE_URL || "",
     useResponses: false,
   });
 
-  //   setDefaultOpenAIKey(process.env.SYNTHETIC_API_KEY || "");
+  //   setDefaultOpenAIKey(process.env.API_KEY || "");
   //   setOpenAIAPI("chat_completions");
 
   const runner: Runner = new Runner({
@@ -27,14 +27,14 @@ export async function run(): Promise<{ biology: unknown; chemistry: unknown }> {
 
   const biologyAgent: Agent = new Agent({
     name: "BiologyExpert",
-    model: process.env.SYNTHETIC_MODEL || "",
+    model: process.env.MODEL || "",
     instructions:
       "You are a biology expert. Summarize CRISPR technology in one sentence.",
   });
 
   const chemistryAgent: Agent = new Agent({
     name: "ChemistryExpert",
-    model: process.env.SYNTHETIC_MODEL || "",
+    model: process.env.MODEL || "",
     instructions:
       "You are a chemistry expert. Summarize solid-state batteries in one sentence.",
   });

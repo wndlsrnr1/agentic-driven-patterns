@@ -9,16 +9,16 @@ import {
   type ResearchSummary,
 } from "./parallelization_openai.ts";
 
-test("resolveOpenAIConfig throws when SYNTHETIC_API_KEY is missing", (): void => {
+test("resolveOpenAIConfig throws when API_KEY is missing", (): void => {
   assert.throws(
     (): OpenAIConfig => resolveOpenAIConfig({}),
-    /SYNTHETIC_API_KEY is missing\./,
+    /API_KEY is missing\./,
   );
 });
 
 test("resolveOpenAIConfig uses default baseUrl and modelName", (): void => {
   const config: OpenAIConfig = resolveOpenAIConfig({
-    SYNTHETIC_API_KEY: "test-key",
+    API_KEY: "test-key",
   });
 
   assert.equal(config.apiKey, "test-key");
@@ -79,12 +79,9 @@ test("runOpenAIWorkflow propagates executor failures", async (): Promise<void> =
 
   await assert.rejects(
     async (): Promise<OpenAIWorkflowResult> =>
-      runOpenAIWorkflow(
-        config,
-        async (): Promise<OpenAIWorkflowResult> => {
-          throw new Error("executor failure");
-        },
-      ),
+      runOpenAIWorkflow(config, async (): Promise<OpenAIWorkflowResult> => {
+        throw new Error("executor failure");
+      }),
     /executor failure/,
   );
 });

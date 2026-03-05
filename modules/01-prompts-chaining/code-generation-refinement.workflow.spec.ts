@@ -11,7 +11,7 @@ import {
 test("buildRuntimeConfigFromEnv throws without API key", (): void => {
   assert.throws(
     (): RuntimeConfig => buildRuntimeConfigFromEnv({}),
-    /SYNTHETIC_API_KEY is missing\./,
+    /API_KEY is missing\./,
   );
 });
 

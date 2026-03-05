@@ -7,8 +7,7 @@ import {
   setOpenAIAPI,
   type Session,
 } from "@openai/agents";
-import { resolve } from "node:path";
-import { pathToFileURL } from "node:url";
+import { json } from "node:stream/consumers";
 
 export type ReflectionOpenAIConfig = {
   apiKey: string;
@@ -33,30 +32,29 @@ function toTextOutput(output: unknown): string {
 export async function runReflectionOpenAI(
   env: NodeJS.ProcessEnv = process.env,
 ): Promise<ReflectionOpenAIResult> {
-  const apiKey: string =
-    env.API_KEY?.trim() || env.OPENAI_API_KEY?.trim() || "";
-  if (apiKey.length === 0) {
-    throw new Error("API_KEY or OPENAI_API_KEY is missing.");
-  }
-
   const config: ReflectionOpenAIConfig = {
-    apiKey,
-    baseUrl: env.BASE_URL?.trim() || "https://api.synthetic.new/openai/v1",
-    modelName: env.MODEL?.trim() || "hf:moonshotai/Kimi-K2.5",
+    apiKey: env.API_KEY?.trim() || "",
+    baseUrl: env.BASE_URL?.trim() || "",
+    modelName: env.MODEL?.trim() || "",
     subject: "Python factorial function",
   };
+
+  console.log(config.apiKey);
+  console.log(config.baseUrl);
+  console.log(config.modelName);
+  console.log("---------------------------------------");
+
   const provider: OpenAIProvider = new OpenAIProvider({
     apiKey: config.apiKey,
     baseURL: config.baseUrl,
     useResponses: false,
   });
-  setDefaultOpenAIKey(config.apiKey);
-  setOpenAIAPI("chat_completions");
 
   const runner: Runner = new Runner({
     modelProvider: provider,
     tracingDisabled: true,
   });
+
   const session: Session = new MemorySession();
   const runOptions: { maxTurns: number; session: Session } = {
     maxTurns: 6,
@@ -69,37 +67,35 @@ export async function runReflectionOpenAI(
     instructions:
       "Write a short, informative paragraph about the user's subject.",
   });
+
   const factChecker: Agent = new Agent({
-    name: "FactChecker",
+    name: "FactCecker",
     model: config.modelName,
-    instructions: [
-      "You are a meticulous fact-checker.",
-      "Read the draft content provided by the user.",
-      "Carefully verify the factual accuracy of all claims.",
-      "Respond with a concise final review text.",
-    ].join("\n"),
+    instructions: `You are a meticulous fact-checker. Read the draft content provided by the user. Carefully verify the factual accuracy of all claims. Respond with a concise final review text.`,
   });
 
   const draftInput: string = `Subject: ${config.subject}\nGenerate the draft paragraph.`;
+
   const draftOutput: unknown = (
     await runner.run(draftWriter, draftInput, runOptions)
   ).finalOutput;
+
+  console.log(`draftoutput: ${JSON.stringify(draftOutput)}`);
+
   const draftText: string = toTextOutput(draftOutput);
 
   const reviewInput: string = `Subject: ${config.subject}\nReview this draft for factual accuracy:\n${draftText}`;
+
   const reviewOutput: unknown = (
     await runner.run(factChecker, reviewInput, runOptions)
   ).finalOutput;
+
+  console.log(`reviewOutput: ${JSON.stringify(reviewOutput)}`);
+
+  console.log(`reviewOutput: ${reviewOutput}`);
   const review: string = toTextOutput(reviewOutput).trim();
-
-  if (review.length === 0) {
-    throw new Error(
-      "OpenAI reflection workflow completed without a text response.",
-    );
-  }
-
+  console.log(`review: ${review}`);
   return { review };
 }
 
-const result: ReflectionOpenAIResult = await runReflectionOpenAI(process.env);
-console.log(result);
+const result: ReflectionOpenAIResult = await runReflectionOpenAI();

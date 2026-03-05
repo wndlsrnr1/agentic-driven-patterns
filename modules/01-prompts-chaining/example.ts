@@ -5,9 +5,8 @@ import { ChatOpenAI } from "@langchain/openai";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
-const DEFAULT_SYNTHETIC_BASE_URL: string =
-  "https://api.synthetic.new/openai/v1";
-const DEFAULT_SYNTHETIC_MODEL: string = "hf:moonshotai/Kimi-K2.5";
+const DEFAULT_BASE_URL: string = "https://api.synthetic.new/openai/v1";
+const DEFAULT_MODEL: string = "hf:moonshotai/Kimi-K2.5";
 
 export const DEFAULT_EXAMPLE_INPUT_TEXT: string =
   "The new laptop model features a 3.5 GHz octa-core processor, 16GB of RAM, and a 1TB NVMe SSD.";
@@ -149,20 +148,20 @@ export type RunPromptsChainExampleInput = {
  *
  * @param env 실행 시점 환경 변수.
  * @returns 예제 런타임 설정.
- * @throws `SYNTHETIC_API_KEY`가 없을 때 `Error`.
+ * @throws `API_KEY`가 없을 때 `Error`.
  */
 export function buildRuntimeConfigFromEnv(
   env: NodeJS.ProcessEnv,
 ): PromptsChainRuntimeConfig {
-  const apiKey: string | undefined = env.SYNTHETIC_API_KEY?.trim();
+  const apiKey: string | undefined = env.API_KEY?.trim();
   if (!apiKey) {
-    throw new Error("SYNTHETIC_API_KEY is missing.");
+    throw new Error("API_KEY is missing.");
   }
 
   return {
     apiKey,
-    baseUrl: env.SYNTHETIC_BASE_URL?.trim() ?? DEFAULT_SYNTHETIC_BASE_URL,
-    modelName: env.SYNTHETIC_MODEL?.trim() ?? DEFAULT_SYNTHETIC_MODEL,
+    baseUrl: env.BASE_URL?.trim() ?? DEFAULT_BASE_URL,
+    modelName: env.MODEL?.trim() ?? DEFAULT_MODEL,
   };
 }
 

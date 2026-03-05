@@ -4,12 +4,12 @@
 
 Required:
 
-- `SYNTHETIC_API_KEY`
+- `API_KEY`
 
 Optional:
 
-- `SYNTHETIC_BASE_URL` (default: `https://api.synthetic.new/openai/v1`)
-- `SYNTHETIC_MODEL` (default: `hf:moonshotai/Kimi-K2.5`)
+- `BASE_URL` (default: `https://api.synthetic.new/openai/v1`)
+- `MODEL` (default: `hf:moonshotai/Kimi-K2.5`)
 
 ## Run
 

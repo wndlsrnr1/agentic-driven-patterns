@@ -110,14 +110,6 @@ Semantic search is your MAIN exploration tool.
 
 Bias towards not asking the user for help if you can find the answer yourself.
 
-## Self-Improvement Loop
-
-- Review `.sisyphus/lessons.md` at session start for relevant project
-- After ANY correction from the user: update `.sisyphus/lessons.md` with the pattern
-- Write rules for yourself that prevent the same mistake
-- Ruthlessly iterate on these lessons until mistake rate drops
-- keep `.sisyphus/lessons.md` under 200 lines
-
 ## Code Style
 
 All code must follow OOP, DDD, Clean Code, SSOT, explicit return type annotation, human-readable and Effective Software Design principles. Prioritize domain model clarity, separation of responsibilities, readability, and maintainability over language/framework-specific idioms. No over-engineering. Only the necessary abstractions. Avoid writing overly defensive code. 흐름이 보이는 자기 설명적 구조, Self-Documenting Code.

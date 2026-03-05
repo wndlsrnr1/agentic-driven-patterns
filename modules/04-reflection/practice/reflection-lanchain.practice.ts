@@ -66,9 +66,9 @@ export type ReflectionLangChainResult = {
 export async function runReflectionLangChain(
   env: NodeJS.ProcessEnv = process.env,
 ): Promise<ReflectionLangChainResult> {
-  const apiKey: string = env.SYNTHETIC_API_KEY?.trim() ?? "";
-  const baseUrl: string = env.SYNTHETIC_BASE_URL?.trim() ?? "";
-  const model: string = env.SYNTHETIC_MODEL?.trim() ?? "";
+  const apiKey: string = env.API_KEY?.trim() ?? "";
+  const baseUrl: string = env.BASE_URL?.trim() ?? "";
+  const model: string = env.MODEL?.trim() ?? "";
 
   const reflectionConfig: ReflectionLangChainConfig = {
     apiKey,

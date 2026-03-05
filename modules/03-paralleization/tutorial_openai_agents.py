@@ -26,10 +26,10 @@ def resolve_openai_tutorial_config() -> OpenAiTutorialConfig | None:
             base_url=None,
         )
 
-    synthetic_api_key: str = os.getenv("SYNTHETIC_API_KEY", "").strip()
-    if synthetic_api_key:
+    API_KEY: str = os.getenv("API_KEY", "").strip()
+    if API_KEY:
         return OpenAiTutorialConfig(
-            api_key=synthetic_api_key,
+            api_key=API_KEY,
             model_name="hf:moonshotai/Kimi-K2.5",
             base_url="https://api.synthetic.new/openai/v1",
         )
@@ -44,7 +44,7 @@ async def run_openai_agents_tutorial(log: StepLogger = print) -> TutorialStepRes
             step_id=STEP_ID,
             library=LIBRARY,
             status="skipped",
-            message="OPENAI_API_KEY or SYNTHETIC_API_KEY is missing.",
+            message="OPENAI_API_KEY or API_KEY is missing.",
         )
 
     try:

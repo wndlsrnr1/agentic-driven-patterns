@@ -8,16 +8,16 @@ import {
   type LangchainWorkflowResult,
 } from "./parallelization_langchain.ts";
 
-test("resolveLangchainConfig throws when SYNTHETIC_API_KEY is missing", (): void => {
+test("resolveLangchainConfig throws when API_KEY is missing", (): void => {
   assert.throws(
     (): LangchainConfig => resolveLangchainConfig({}),
-    /SYNTHETIC_API_KEY is missing\./,
+    /API_KEY is missing\./,
   );
 });
 
 test("resolveLangchainConfig uses default baseUrl and modelName", (): void => {
   const config: LangchainConfig = resolveLangchainConfig({
-    SYNTHETIC_API_KEY: "test-key",
+    API_KEY: "test-key",
   });
 
   assert.equal(config.apiKey, "test-key");

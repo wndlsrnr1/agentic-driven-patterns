@@ -12,7 +12,7 @@ import {
 test("resolveGoogleConfig throws when required keys are missing", (): void => {
   assert.throws(
     (): GoogleConfig => resolveGoogleConfig({}),
-    /GEMINI_API_KEY or GOOGLE_API_KEY or SYNTHETIC_API_KEY is missing\./,
+    /GEMINI_API_KEY or GOOGLE_API_KEY or API_KEY is missing\./,
   );
 });
 
@@ -37,17 +37,15 @@ test("runGoogleWorkflow returns report shape from executor", async (): Promise<v
 
   const result: GoogleWorkflowResult = await runGoogleWorkflow(
     config,
-    async (
-      payload: Parameters<GoogleWorkflowExecutor>[0],
-    ): Promise<string> => {
+    async (payload: Parameters<GoogleWorkflowExecutor>[0]): Promise<string> => {
       assert.equal(payload.workflow.name, "ResearchAndSynthesisPipeline");
       assert.equal(payload.workflow.subAgents.length, 2);
 
-      const parallelAgent: { name: string; subAgents: Array<unknown> } =
-        payload.workflow.subAgents[0] as {
-          name: string;
-          subAgents: Array<unknown>;
-        };
+      const parallelAgent: { name: string; subAgents: Array<unknown> } = payload
+        .workflow.subAgents[0] as {
+        name: string;
+        subAgents: Array<unknown>;
+      };
       assert.equal(parallelAgent.name, "ParallelWebResearchAgent");
       assert.equal(parallelAgent.subAgents.length, 3);
 

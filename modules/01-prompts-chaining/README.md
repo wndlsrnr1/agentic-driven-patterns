@@ -3,9 +3,9 @@
 ## Setup
 
 1. Fill `modules/.env` with:
-   - `SYNTHETIC_API_KEY`
-   - `SYNTHETIC_BASE_URL`
-   - `SYNTHETIC_MODEL`
+   - `API_KEY`
+   - `BASE_URL`
+   - `MODEL`
 
 2. Install dependencies:
 

@@ -1,14 +1,18 @@
 import {
+  // 사람이 보내는 메시지 요청을 뜻한다
   HumanMessage,
+  // System Prompt를 뜻함
   SystemMessage,
+  // 메세지의 기본 타입 보통 단독으로 사용 되기 보다 배열로서 받기 위해서 type으로 가져온다.
   type BaseMessage,
+  //MessageContent Message로 받은 타입 text이거나 실행 명령등 다양할 수 잇다.
   type MessageContent,
 } from "@langchain/core/messages";
+
 import { ChatOpenAI } from "@langchain/openai";
 
-const DEFAULT_SYNTHETIC_BASE_URL: string =
-  "https://api.synthetic.new/openai/v1";
-const DEFAULT_SYNTHETIC_MODEL: string = "hf:moonshotai/Kimi-K2.5";
+const DEFAULT_BASE_URL: string = "https://api.synthetic.new/openai/v1";
+const DEFAULT_MODEL: string = "hf:moonshotai/Kimi-K2.5";
 
 export type ReflectionLangChainConfig = {
   apiKey: string;
@@ -33,13 +37,11 @@ export type ReflectionLangChainResult = {
 export async function runReflectionLangChain(
   env: NodeJS.ProcessEnv = process.env,
 ): Promise<ReflectionLangChainResult> {
-  const apiKey: string = env.SYNTHETIC_API_KEY?.trim() ?? "";
-  const baseUrl: string =
-    env.SYNTHETIC_BASE_URL?.trim() || DEFAULT_SYNTHETIC_BASE_URL;
-  const modelName: string =
-    env.SYNTHETIC_MODEL?.trim() || DEFAULT_SYNTHETIC_MODEL;
+  const apiKey: string = env.API_KEY?.trim() ?? "";
+  const baseUrl: string = env.BASE_URL?.trim() || DEFAULT_BASE_URL;
+  const modelName: string = env.MODEL?.trim() || DEFAULT_MODEL;
   if (apiKey.length === 0) {
-    throw new Error("SYNTHETIC_API_KEY is missing.");
+    throw new Error("API_KEY is missing.");
   }
 
   const config: ReflectionLangChainConfig = {
@@ -68,8 +70,11 @@ export async function runReflectionLangChain(
   const messageHistory: Array<BaseMessage> = [
     new HumanMessage(config.taskPrompt),
   ];
+
   const iterations: Array<ReflectionLangChainIteration> = [];
+
   let currentCode: string = "";
+
   let completed: boolean = false;
 
   for (let index: number = 0; index < config.maxIterations; index += 1) {
@@ -86,6 +91,7 @@ export async function runReflectionLangChain(
     }
 
     const generatedContent: MessageContent = response.content;
+
     const generatedCode: string =
       typeof generatedContent === "string"
         ? generatedContent

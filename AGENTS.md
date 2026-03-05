@@ -11,14 +11,6 @@ If this line is missing, do not answer and retry internally.
 
 [text](AGENTS.md)
 
-## Self-Improvement Loop
-
-- Review `.sisyphus/lessons.md` at session start for relevant project
-- After ANY correction from the user: update `.sisyphus/lessons.md` with the pattern
-- Write rules for yourself that prevent the same mistake
-- Ruthlessly iterate on these lessons until mistake rate drops
-- keep `.sisyphus/lessons.md` under 200 lines
-
 ## 조사 원칙
 
 니가 조사해서 알수 있는 것은 나에게 묻지마라
@@ -57,6 +49,19 @@ All code must follow OOP, DDD, Clean Code, SSOT, explicit return type annotation
   - 변수/상수 타입 명시를 강제한다(추론 가능해도 생략 금지).
   - `constructor`는 언어 문법상 반환 타입 표기가 불가하므로, 매개변수 타입/접근제어자 프로퍼티 타입/클래스 필드 타입을 명시한다.
   - 생성자 반환 동작에 대한 암묵 의존을 금지한다.
+
+## Do not this Pattern
+
+- 과도한 추상화(쓸데없는 래퍼/헬퍼/클래스 남발)
+- “안전해 보이게” 하려고 의미 없는 방어코드/옵셔널 체이닝 남발
+- 불필요한 제네릭/조건부 타입으로 로직을 타입 체조로 숨김
+- 의미 없는 유틸 함수로 한 줄을 5줄로 늘림(“읽기 흐름” 파괴)
+- 과도한 “설명형” 변수명 + 중복(의미가 아니라 문장처럼 씀)
+- 불필요한 Promise/async 체인(동기 로직도 비동기로 포장)
+- 불필요한 에러 래핑/try-catch 남발(“진짜 실패 지점”을 숨김)
+- 과도한 설정 객체/옵션 인자(필요 없는 확장성 선반영)
+- 불필요한 enum/상수화(한 번 쓰는 값도 “의미 부여”한다고 늘림)
+- 콜백/이벤트 스타일로 단순 흐름을 분해(직선 로직을 미로로 만듦)
 
 ## Maximize context understanding
 
@@ -131,7 +136,7 @@ A skill is a set of local instructions to follow that is stored in a `SKILL.md` 
 - technical-research-and-comparison: Systematically research and compare technical solutions to make informed decisions. (file: `.agents/skills/technical-research-and-comparison/SKILL.md`)
 - test-driven-development: Use when implementing any feature or bugfix, before writing implementation code (file: `.agents/skills/test-driven-development/SKILL.md`)
 - testing-mastery: Verifies understanding using the Feynman Technique and active recall. Use to ensure the user has actually mastered a "layer" of the curriculum. (file: `.agents/skills/testing-mastery/SKILL.md`)
-- typescript-foundation-rules: TypeScript baseline policy. Use before role-specific work to enforce architecture, explicit contracts/types, and verification discipline. (file: `.agents/skills/typescript-foundation-rules/SKILL.md`)
+- typescript-foundation-rules: read this rule when ever you write code in typescript. (file: `.agents/skills/typescript-foundation-rules/SKILL.md`)
 - using-git-worktrees: Use when starting feature work that needs isolation from current workspace or before executing implementation plans - creates isolated git worktrees with smart directory selection and safety verification (file: `.agents/skills/using-git-worktrees/SKILL.md`)
 - using-superpowers: ALWAYS READ THIS SKILLS. Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions. (file: `.agents/skills/using-superpowers/SKILL.md`)
 - verification-before-completion: Use when about to claim work is complete, fixed, or passing, before committing or creating PRs - requires running verification commands and confirming output before making any success claims; evidence before assertions always (file: `.agents/skills/verification-before-completion/SKILL.md`)

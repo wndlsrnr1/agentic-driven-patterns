@@ -33,15 +33,15 @@ export type LangchainWorkflowExecutor = (
 export function resolveLangchainConfig(
   env: NodeJS.ProcessEnv = process.env,
 ): LangchainConfig {
-  const apiKey: string | undefined = env.SYNTHETIC_API_KEY?.trim();
+  const apiKey: string | undefined = env.API_KEY?.trim();
   if (!apiKey) {
-    throw new Error("SYNTHETIC_API_KEY is missing.");
+    throw new Error("API_KEY is missing.");
   }
 
   const config: LangchainConfig = {
     apiKey,
-    baseUrl: env.SYNTHETIC_BASE_URL?.trim() || "https://api.synthetic.new/openai/v1",
-    modelName: env.SYNTHETIC_MODEL?.trim() || "hf:moonshotai/Kimi-K2.5",
+    baseUrl: env.BASE_URL?.trim() || "https://api.synthetic.new/openai/v1",
+    modelName: env.MODEL?.trim() || "hf:moonshotai/Kimi-K2.5",
     topic: "The history of space exploration",
   };
   return config;
@@ -53,7 +53,10 @@ export async function runLangchainWorkflow(
   executor?: LangchainWorkflowExecutor,
 ): Promise<LangchainWorkflowResult> {
   if (executor) {
-    const injectedResult: LangchainWorkflowResult = await executor(config, topic);
+    const injectedResult: LangchainWorkflowResult = await executor(
+      config,
+      topic,
+    );
     return injectedResult;
   }
 
@@ -159,11 +162,9 @@ if (!isNodeTestContext && cliPath) {
   if (cliUrl === import.meta.url) {
     const cliConfig: LangchainConfig = resolveLangchainConfig(process.env);
     const topicFromCli: string = process.argv.slice(2).join(" ").trim();
-    const topic: string = topicFromCli.length > 0 ? topicFromCli : cliConfig.topic;
-    void runLangchainWorkflow(
-      cliConfig,
-      topic,
-    )
+    const topic: string =
+      topicFromCli.length > 0 ? topicFromCli : cliConfig.topic;
+    void runLangchainWorkflow(cliConfig, topic)
       .then((result: LangchainWorkflowResult): void => {
         console.log(JSON.stringify(result, null, 2));
       })

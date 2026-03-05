@@ -1,6 +1,6 @@
 ---
 name: typescript-foundation-rules
-description: TypeScript baseline policy. Use before role-specific work to enforce architecture, explicit contracts/types, and verification discipline.
+description: whenever you write code in typescript, apply this rule
 ---
 
 # Typescript Foundation Rules
@@ -27,6 +27,101 @@ Apply the TypeScript baseline first, then layer-specific rules.
 4. Refactor, then run full verification.
 5. Report results with command-output evidence.
 
+## Overengineering Replacement Checklist (Mandatory)
+
+Use this checklist during TypeScript code review/refactor. Replace each anti-pattern with the corresponding principle.
+
+### 1) Instead of excessive abstraction (wrappers/helpers/classes everywhere)
+
+- Is this abstraction removing duplication or creating new duplication?
+- If removing this layer makes call sites clearer, remove it.
+- Is the protected "change axis" explicit and real?
+- Is the same concept reused by 2+ functions? If not, inline first.
+- Was interface/class introduced for real test-double need, not habit?
+- If behavior is under ~20 lines, can one function solve it directly?
+- If you cannot name it with a domain term, do not introduce it.
+- Prefer minimum structure for current requirements, not speculative extensibility.
+
+### 2) Instead of meaningless defensive code / optional chaining abuse
+
+- Can input contract (type/runtime) be stated in one sentence?
+- Is each guard based on real evidence (logs/spec/tests)?
+- Does defaulting (for example `?? ""`) create silent failure?
+- Separate "must fail" cases from "safe default" cases explicitly.
+- Use optional chaining only for truly optional paths.
+- Normalize null/undefined once at function entry, not repeatedly.
+- Failure action must be explicit: throw, Result, or early return.
+
+### 3) Instead of type gymnastics (unnecessary generics/conditional types)
+
+- Does generic typing provide meaningful inference to callers?
+- Do runtime branches and static types actually match?
+- Keep conditional types minimal at public API boundaries only.
+- Treat `as any` as a design-smell signal and simplify structure.
+- Prefer the simplest return union that models reality.
+- Types must constrain logic, not hide it.
+
+### 4) Instead of splitting into meaningless utility functions
+
+- If helper is used once, is inline flow clearer?
+- Split only when function name conveys domain meaning.
+- Ensure extracted function does not lose caller context.
+- Use pipe/compose only when team-standard and readability improves.
+- Do not extract trivial 3-line expressions without clear gain.
+- Do not force DRY for fewer than 2 repeated occurrences.
+
+### 5) Instead of over-explanatory names and duplicated intent
+
+- Variable names should represent concepts, not full sentences.
+- Remove duplicated meaning and redundant boolean expressions.
+- Add intermediate variables only with real debug/readability value.
+- Boolean names should start with `is/has/can/should` and avoid double negatives.
+- Extract computed values only when next line becomes clearer.
+- Keep final return expression as direct and short as possible.
+
+### 6) Instead of unnecessary Promise/async chains
+
+- Do not mark logic async unless real async I/O exists.
+- Remove `Promise.resolve().then()` around synchronous logic.
+- Avoid serial awaits when work is safely parallelizable.
+- Ensure async return type is truly needed by callers.
+- Prefer one `try/catch` boundary or caller delegation over catch chains.
+
+### 7) Instead of unnecessary error wrapping / excessive try-catch
+
+- Use try/catch only for recovery or meaningful context addition.
+- Remove pass-through catch blocks that only rethrow new generic errors.
+- If adding context, preserve root cause (`cause`) where possible.
+- Keep failure point visible in stack trace; avoid nested try blocks.
+- Do not overwrite rich errors with flat strings.
+- For safe parsing/validation, consider explicit `Result` shapes.
+
+### 8) Instead of speculative option objects and configuration surfaces
+
+- If options are under three and stable, positional args may be clearer.
+- Add extension points only with roadmap-backed evidence.
+- Do not hide important behavior behind silent defaults.
+- Split unrelated option clusters into separate functions.
+- Ensure option object + type docs provide real caller value.
+- Keep 90% common call path shortest.
+
+### 9) Instead of unnecessary enum/constant extraction
+
+- If value is used once, keep literal in place unless it harms clarity.
+- Confirm enum improves safety beyond added verbosity.
+- Extract constants when values map to volatile external contracts.
+- Prefer literal unions with `as const` when sufficient.
+- Extract only when multi-use + meaningful change risk exist.
+
+### 10) Instead of callback/event decomposition for simple linear flow
+
+- Prefer Promise/async for single-result async control flow.
+- Use events only for true multi-subscriber/streaming semantics.
+- For one success/failure outcome, return value + throw/Result is usually enough.
+- If callback nesting exceeds two levels, redesign to linear flow.
+- Confirm testability improves rather than degrades.
+- Keep consumer-facing API as a single readable flow.
+
 ## Prohibited
 
 - Do not add temporary patterns that bypass baseline language rules.
@@ -34,10 +129,11 @@ Apply the TypeScript baseline first, then layer-specific rules.
 ## Embedded Rule Sources (Full Text)
 
 ### `typescript/always.mdc`
+
 - Scope (globs): `**/*.ts", "**/*.tsx`
 - alwaysApply: `false`
 
-````md
+```md
 ---
 description: React state and effects — derived in render/useMemo; React Query for async; useReducer for compound; useEffect only for real side effects; mobile-first; no verbose or over-optimization
 globs: "**/*.ts", "**/*.tsx"
@@ -67,13 +163,14 @@ fetch/setState 형태의 useEffect → React Query로 이동
 **필수**: 구현 전 공통 로직 존재 여부 검토.
 
 **금지**: 한 번에 긴 코드, 장황한 코드, useEffect 남발, 과도한 방어 코드, useMemo 남발, 깊은 depth.
-````
+```
 
 ### `typescript/common-principles.mdc`
+
 - Scope (globs): `**/*.ts", "**/*.tsx`
 - alwaysApply: `false`
 
-````md
+```md
 ---
 description: Common principles for TS (from general/java/python) — Layer, types, Clean, TDD, no blind tests, DRY, no premature opt, OOP/DDD, no dynamic
 globs: "**/*.ts", "**/*.tsx"
@@ -93,9 +190,10 @@ alwaysApply: false
 - **7. 과도한 최적화** — 실측 없이 useMemo/cache 금지. → react-common §1; always.
 - **8. OOP/DDD** — SRP·캡슐화·인터페이스(타입) 의존. 도메인은 Hook. → react-common §5.
 - **9. 동적/리플렉션** — `eval`, `Function`, `any` 남발, 타입 가드 없는 동적 접근 금지. → react-common §2.1.
-````
+```
 
 ### `typescript/react-common.mdc`
+
 - Scope (globs): `**/*.ts", "**/*.tsx`
 - alwaysApply: `false`
 
@@ -105,7 +203,6 @@ description: React + TypeScript Architecture & Code Generation — comprehensive
 globs: "**/*.ts", "**/*.tsx"
 alwaysApply: false
 ---
-
 
 # React + TypeScript Architecture & Code Generation Guide
 
@@ -143,12 +240,14 @@ Respond **only** in this structure:
 ## 2) Absolute Prohibitions (If violated: explicitly say "RULE VIOLATION" and propose an alternative)
 
 ### 2.1 Dynamic / Reflection / Runtime Tricks
+
 - **Never use**: `eval`, `Function` constructor, dynamic property access without type guards
 - **Never use**: dynamic imports in render (use `lazy()` at module level)
 - **Never use**: `any` type without explicit reason comment
 - **Never use**: runtime type branching via `instanceof` for business logic (design types/contracts instead)
 
 ### 2.2 Layer Violations
+
 - **Components must not import/use API functions directly**
 - **Components must not contain business logic**
 - **Hooks must not call other hooks conditionally**
@@ -156,12 +255,14 @@ Respond **only** in this structure:
 - **Utils are pure functions only (no state, no side effects)**
 
 ### 2.3 Code Quality Anti-patterns
+
 - **Avoid overly defensive code**: Don't handle every possible edge case if it makes code unnecessarily long
 - **No verbose example data**: Don't include dummy data or meaningless test values
 - **No meaningless comments**: Code should be self-explanatory
 - **No complex logic in components**: Move all conditional logic to hooks
 
 ### 2.4 React-Specific Anti-patterns
+
 - **Never use useEffect for data fetching**: Use React Query v5 (`useQuery`/`useMutation`)
 - **Never use useEffect for derived state**: Calculate in render or use `useMemo` only when necessary
 - **Never use multiple useState for related state**: Use `useReducer` for complex state transitions
@@ -193,6 +294,7 @@ Respond **only** in this structure:
 ## 5) Layer Responsibilities (Core)
 
 ### 5.1 Component (UI Rendering Only)
+
 - **Responsibilities**:
   - Render JSX based on props/state
   - Call hooks for data/logic
@@ -202,6 +304,7 @@ Respond **only** in this structure:
 - **Props**: Explicit interface/type definitions
 
 ### 5.2 Hook (Business Logic & State Management)
+
 - **Responsibilities**:
   - Use-case orchestration
   - State management (`useState`, `useReducer`)
@@ -211,6 +314,7 @@ Respond **only** in this structure:
 - **Return**: Object with data/loading/error/actions
 
 ### 5.3 API/Repository (Data Fetching & Transformation)
+
 - **Responsibilities**:
   - HTTP requests (via axiosInstance)
   - Response transformation
@@ -220,6 +324,7 @@ Respond **only** in this structure:
 - **Location**: `src/api/modules/` directory
 
 ### 5.4 Utils
+
 - **Pure functions only** (no state, no side effects, no API calls)
 - **Type-safe**: All parameters and return types explicit
 - **Location**: `src/utils/` directory
@@ -230,14 +335,15 @@ Respond **only** in this structure:
 
 **Components must not touch API functions directly.**
 
-| From \ To             | Utils | Component | Hook | API/Repository | Types |
-|-----------------------|------:|----------:|-----:|---------------:|------:|
-| Utils                 | ✅    | 🚫        | 🚫   | 🚫             | ✅    |
-| Component             | ✅    | ✅        | ✅   | 🚫             | ✅    |
-| Hook                  | ✅    | 🚫        | ✅   | ✅             | ✅    |
-| API/Repository        | ✅    | 🚫        | 🚫   | ✅             | ✅    |
+| From \ To      | Utils | Component | Hook | API/Repository | Types |
+| -------------- | ----: | --------: | ---: | -------------: | ----: |
+| Utils          |    ✅ |        🚫 |   🚫 |             🚫 |    ✅ |
+| Component      |    ✅ |        ✅ |   ✅ |             🚫 |    ✅ |
+| Hook           |    ✅ |        🚫 |   ✅ |             ✅ |    ✅ |
+| API/Repository |    ✅ |        🚫 |   🚫 |             ✅ |    ✅ |
 
 **Key prohibitions:**
+
 - Component↔API direct calls forbidden
 - Hook↔Hook conditional calls forbidden
 - API functions only accessible by Hook layer
@@ -318,7 +424,7 @@ function CreateUser() {
   const handleSubmit = async (data: UserForm) => {
     setLoading(true);
     try {
-      await fetch('/api/users', { method: 'POST', body: JSON.stringify(data) });
+      await fetch("/api/users", { method: "POST", body: JSON.stringify(data) });
     } finally {
       setLoading(false);
     }
@@ -333,9 +439,9 @@ function CreateUser() {
 function CreateUser() {
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: UserForm) => axiosInstance.post('/users', data),
+    mutationFn: (data: UserForm) => axiosInstance.post("/users", data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
 
@@ -382,8 +488,8 @@ function FilteredList({ items }: { items: Item[] }) {
 ```typescript
 // BAD
 function Form() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   // ... complex sync logic
@@ -402,17 +508,20 @@ type FormState = {
 };
 
 type FormAction =
-  | { type: 'SET_FIELD'; field: string; value: string }
-  | { type: 'SET_ERROR'; field: string; error: string }
-  | { type: 'TOUCH_FIELD'; field: string };
+  | { type: "SET_FIELD"; field: string; value: string }
+  | { type: "SET_ERROR"; field: string; error: string }
+  | { type: "TOUCH_FIELD"; field: string };
 
 function formReducer(state: FormState, action: FormAction): FormState {
   switch (action.type) {
-    case 'SET_FIELD':
+    case "SET_FIELD":
       return { ...state, [action.field]: action.value };
-    case 'SET_ERROR':
-      return { ...state, errors: { ...state.errors, [action.field]: action.error } };
-    case 'TOUCH_FIELD':
+    case "SET_ERROR":
+      return {
+        ...state,
+        errors: { ...state.errors, [action.field]: action.error },
+      };
+    case "TOUCH_FIELD":
       return { ...state, touched: { ...state.touched, [action.field]: true } };
     default:
       return state;
@@ -432,7 +541,7 @@ function Form() {
 ```typescript
 // BAD
 function SearchInput() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [results, setResults] = useState<Result[]>([]);
 
   useEffect(() => {
@@ -448,7 +557,7 @@ function SearchInput() {
 ```typescript
 // GOOD
 function SearchInput() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const { data: results = [] } = useQuery({
     ...$axios.search.search(query),
     enabled: query.length > 2,
@@ -557,21 +666,25 @@ function List<T>({ items, renderItem }: ListProps<T>) {
 ## 13) Mobile Web Specific Rules
 
 ### 13.1 CSS / Styling
+
 - **Use Tailwind CSS mobile-first classes**: `sm:`, `md:`, `lg:` breakpoints
 - **Touch-friendly sizes**: Minimum 44x44px for interactive elements
 - **Viewport meta**: Ensure proper mobile viewport settings
 - **Module CSS**: Use `*.module.css` for component-specific styles (avoid global CSS conflicts)
 
 ### 13.2 Touch Events
+
 - **Prefer standard events**: Use `onClick` (works on touch), avoid `onTouchStart` unless necessary
 - **Touch feedback**: Provide visual feedback (e.g., `active:` states in Tailwind)
 
 ### 13.3 Performance
+
 - **Code splitting**: Use `lazy()` for route-level code splitting
 - **Image optimization**: Use appropriate image formats and sizes
 - **Bundle size**: Monitor and optimize bundle size (avoid large dependencies)
 
 ### 13.4 Responsive Design
+
 - **Mobile-first**: Design for mobile, enhance for larger screens
 - **Flexible layouts**: Use Flexbox/Grid with responsive units (rem, %, vw/vh)
 
@@ -610,11 +723,15 @@ export default function UserList({ onUserSelect }: UserListProps) {
 
 ```typescript
 // hooks/useUserList.ts
-import { useQuery } from '@tanstack/react-query';
-import $axios from '@/api/controller';
+import { useQuery } from "@tanstack/react-query";
+import $axios from "@/api/controller";
 
 export function useUserList() {
-  const { data: users = [], isLoading, error } = useQuery($axios.user.getUserList());
+  const {
+    data: users = [],
+    isLoading,
+    error,
+  } = useQuery($axios.user.getUserList());
 
   return {
     users,
@@ -628,8 +745,8 @@ export function useUserList() {
 
 ```typescript
 // api/modules/user.ts
-import axiosInstance from '@/api/axiosInstance';
-import { UseQueryOptions } from '@tanstack/react-query';
+import axiosInstance from "@/api/axiosInstance";
+import { UseQueryOptions } from "@tanstack/react-query";
 
 export interface User {
   id: number;
@@ -639,15 +756,17 @@ export interface User {
 
 const user = {
   getUserList: (): UseQueryOptions<User[], Error, User[], string[]> => ({
-    queryKey: ['users'],
+    queryKey: ["users"],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<User[]>('/users');
+      const { data } = await axiosInstance.get<User[]>("/users");
       return data;
     },
   }),
 
-  getUser: (id: number | string): UseQueryOptions<User, Error, User, string[]> => ({
-    queryKey: ['user', String(id)],
+  getUser: (
+    id: number | string,
+  ): UseQueryOptions<User, Error, User, string[]> => ({
+    queryKey: ["user", String(id)],
     queryFn: async () => {
       const { data } = await axiosInstance.get<User>(`/users/${id}`);
       return data;
@@ -664,14 +783,14 @@ export default user;
 ```typescript
 // utils/format.ts
 export function formatDate(date: Date | string): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
-  return d.toLocaleDateString('ko-KR');
+  const d = typeof date === "string" ? new Date(date) : date;
+  return d.toLocaleDateString("ko-KR");
 }
 
 export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('ko-KR', {
-    style: 'currency',
-    currency: 'KRW',
+  return new Intl.NumberFormat("ko-KR", {
+    style: "currency",
+    currency: "KRW",
   }).format(amount);
 }
 ```
@@ -710,6 +829,7 @@ src/
 ```
 
 **File Naming**:
+
 - Components: `PascalCase.tsx` (e.g., `UserList.tsx`)
 - Hooks: `camelCase.ts` with `use` prefix (e.g., `useUserList.ts`)
 - API modules: `camelCase.ts` (e.g., `user.ts`)
@@ -784,16 +904,16 @@ export default function UserList() {
 ```typescript
 // BAD
 function CreateUserForm() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (name.length < 2) {
-      setErrors(prev => ({ ...prev, name: 'Name too short' }));
+      setErrors((prev) => ({ ...prev, name: "Name too short" }));
     } else {
-      setErrors(prev => {
+      setErrors((prev) => {
         const next = { ...prev };
         delete next.name;
         return next;
@@ -804,7 +924,7 @@ function CreateUserForm() {
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      await axiosInstance.post('/users', { name, email });
+      await axiosInstance.post("/users", { name, email });
     } finally {
       setSubmitting(false);
     }

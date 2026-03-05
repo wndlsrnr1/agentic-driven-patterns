@@ -20,14 +20,14 @@ class LangchainWorkflowConfig:
 
 
 def resolve_langchain_config() -> LangchainWorkflowConfig:
-    api_key: str = os.getenv("SYNTHETIC_API_KEY", "").strip()
+    api_key: str = os.getenv("API_KEY", "").strip()
     if api_key == "":
-        raise ValueError("SYNTHETIC_API_KEY is missing.")
+        raise ValueError("API_KEY is missing.")
 
     return LangchainWorkflowConfig(
         api_key=api_key,
-        model_name=os.getenv("SYNTHETIC_MODEL", "hf:moonshotai/Kimi-K2.5"),
-        base_url=os.getenv("SYNTHETIC_BASE_URL", "https://api.synthetic.new/openai/v1"),
+        model_name=os.getenv("MODEL", "hf:moonshotai/Kimi-K2.5"),
+        base_url=os.getenv("BASE_URL", "https://api.synthetic.new/openai/v1"),
         topic="The history of space exploration",
     )
 

@@ -9,9 +9,8 @@ import { ChatOpenAI } from "@langchain/openai";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
-const DEFAULT_SYNTHETIC_BASE_URL: string =
-  "https://api.synthetic.new/openai/v1";
-const DEFAULT_SYNTHETIC_MODEL: string = "hf:moonshotai/Kimi-K2.5";
+const DEFAULT_BASE_URL: string = "https://api.synthetic.new/openai/v1";
+const DEFAULT_MODEL: string = "hf:moonshotai/Kimi-K2.5";
 const DEFAULT_IMAGE_URL: string =
   "https://raw.githubusercontent.com/github/explore/main/topics/typescript/typescript.png";
 const DEFAULT_LABEL_TABLE: string = [
@@ -264,20 +263,20 @@ async function runDefaultMultimodalMultistepReasoningWorkflow(
  *
  * @param env 프로세스 환경 변수.
  * @returns 정규화된 런타임 설정.
- * @throws `SYNTHETIC_API_KEY`가 없으면 `Error`.
+ * @throws `API_KEY`가 없으면 `Error`.
  */
 export function buildRuntimeConfigFromEnv(
   env: NodeJS.ProcessEnv,
 ): RuntimeConfig {
-  const apiKey: string | undefined = env.SYNTHETIC_API_KEY?.trim();
+  const apiKey: string | undefined = env.API_KEY?.trim();
   if (!apiKey) {
-    throw new Error("SYNTHETIC_API_KEY is missing.");
+    throw new Error("API_KEY is missing.");
   }
 
   return {
     apiKey,
-    baseUrl: env.SYNTHETIC_BASE_URL?.trim() ?? DEFAULT_SYNTHETIC_BASE_URL,
-    modelName: env.SYNTHETIC_MODEL?.trim() ?? DEFAULT_SYNTHETIC_MODEL,
+    baseUrl: env.BASE_URL?.trim() ?? DEFAULT_BASE_URL,
+    modelName: env.MODEL?.trim() ?? DEFAULT_MODEL,
   };
 }
 

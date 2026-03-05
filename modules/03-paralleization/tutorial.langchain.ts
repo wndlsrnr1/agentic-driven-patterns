@@ -13,9 +13,9 @@ type ModelConfig = {
 
 function resolveModelConfig(): ModelConfig {
   return {
-    apiKey: String(env.SYNTHETIC_API_KEY),
-    modelName: String(env.SYNTHETIC_MODEL),
-    baseUrl: String(env.SYNTHETIC_BASE_URL),
+    apiKey: String(env.API_KEY),
+    modelName: String(env.MODEL),
+    baseUrl: String(env.BASE_URL),
   } as ModelConfig;
 }
 

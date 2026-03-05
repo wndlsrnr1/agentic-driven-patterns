@@ -19,10 +19,10 @@ def resolve_google_config() -> GoogleWorkflowConfig:
     api_key: str = (
         os.getenv("GEMINI_API_KEY", "").strip()
         or os.getenv("GOOGLE_API_KEY", "").strip()
-        or os.getenv("SYNTHETIC_API_KEY", "").strip()
+        or os.getenv("API_KEY", "").strip()
     )
     if api_key == "":
-        raise ValueError("GEMINI_API_KEY or GOOGLE_API_KEY or SYNTHETIC_API_KEY is missing.")
+        raise ValueError("GEMINI_API_KEY or GOOGLE_API_KEY or API_KEY is missing.")
 
     return GoogleWorkflowConfig(
         api_key=api_key,

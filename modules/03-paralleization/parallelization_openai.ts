@@ -37,15 +37,15 @@ export type OpenAIWorkflowExecutor = (
 export function resolveOpenAIConfig(
   env: NodeJS.ProcessEnv = process.env,
 ): OpenAIConfig {
-  const apiKey: string | undefined = env.SYNTHETIC_API_KEY?.trim();
+  const apiKey: string | undefined = env.API_KEY?.trim();
   if (!apiKey) {
-    throw new Error("SYNTHETIC_API_KEY is missing.");
+    throw new Error("API_KEY is missing.");
   }
 
   const config: OpenAIConfig = {
     apiKey,
-    baseUrl: env.SYNTHETIC_BASE_URL?.trim() || "https://api.synthetic.new/openai/v1",
-    modelName: env.SYNTHETIC_MODEL?.trim() || "hf:moonshotai/Kimi-K2.5",
+    baseUrl: env.BASE_URL?.trim() || "https://api.synthetic.new/openai/v1",
+    modelName: env.MODEL?.trim() || "hf:moonshotai/Kimi-K2.5",
   };
   return config;
 }

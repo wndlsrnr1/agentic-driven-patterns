@@ -85,9 +85,9 @@ function requireEnvValue(env: NodeJS.ProcessEnv, key: string): string {
 
 function buildRuntimeConfigFromEnv(env: NodeJS.ProcessEnv): RuntimeConfig {
   return {
-    apiKey: requireEnvValue(env, "SYNTHETIC_API_KEY"),
-    baseUrl: requireEnvValue(env, "SYNTHETIC_BASE_URL"),
-    modelName: requireEnvValue(env, "SYNTHETIC_MODEL"),
+    apiKey: requireEnvValue(env, "API_KEY"),
+    baseUrl: requireEnvValue(env, "BASE_URL"),
+    modelName: requireEnvValue(env, "MODEL"),
   };
 }
 

@@ -43,12 +43,10 @@ export function resolveGoogleConfig(
   const apiKey: string | undefined =
     env.GEMINI_API_KEY?.trim() ||
     env.GOOGLE_API_KEY?.trim() ||
-    env.SYNTHETIC_API_KEY?.trim();
+    env.API_KEY?.trim();
 
   if (!apiKey) {
-    throw new Error(
-      "GEMINI_API_KEY or GOOGLE_API_KEY or SYNTHETIC_API_KEY is missing.",
-    );
+    throw new Error("GEMINI_API_KEY or GOOGLE_API_KEY or API_KEY is missing.");
   }
 
   const config: GoogleConfig = {
