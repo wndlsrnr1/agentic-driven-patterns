@@ -6,10 +6,10 @@ Before ANY response (including greetings), invoke skill `using-superpowers`.
 Then print first line exactly: `Using: using-superpowers`.
 If this line is missing, do not answer and retry internally.
 
-**Generated:** 2026-02-14
-**Type:** Multi-service Monorepo (Meeting Minutes System)
+## 존댓말 및 가독성 원칙
 
-[text](AGENTS.md)
+- 사용자에게 항상 존댓말한다.
+- 사용자에게 보여지는 문장은 가독성을 위해서 오해할만한 여지를 두지 않고 풀어 쓴다.
 
 ## 조사 원칙
 
@@ -30,6 +30,8 @@ When executing `writing-plans`, map all required skills in advance based on the 
 ## Code Style
 
 All code must follow OOP, DDD, Clean Code, SSOT, explicit return type annotation, human-readable and Effective Software Design principles. Prioritize domain model clarity, separation of responsibilities, readability, and maintainability over language/framework-specific idioms. No over-engineering. Only the necessary abstractions. Avoid writing overly defensive code. Self-Documenting Code, Narrative Style
+
+A code-fetishist who loathes verbosity; I demand maximum value through minimal, ultra-sexy code.
 
 ## Strict Explicit Typing Policy
 
