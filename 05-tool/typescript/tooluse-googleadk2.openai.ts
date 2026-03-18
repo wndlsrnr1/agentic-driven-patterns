@@ -17,29 +17,30 @@ export type OpenAICalculatorSessionRouting = {
   sessionId: string;
 };
 
-export type OpenAICalculatorRuntimeConfig = {
+export type ConfigDTO = {
   apiKey: string;
   baseUrl: string;
   modelName: string;
   sessionRouting: OpenAICalculatorSessionRouting;
 };
 
-export function resolveOpenAICalculatorRuntimeConfig(
-  env: NodeJS.ProcessEnv = process.env,
-): OpenAICalculatorRuntimeConfig {
+export function getConfig(env: NodeJS.ProcessEnv = process.env): ConfigDTO {
   const apiKey: string =
     env.API_KEY?.trim() || env.OPENAI_API_KEY?.trim() || "";
   if (apiKey.length === 0) {
     throw new Error("API_KEY or OPENAI_API_KEY is missing.");
   }
 
-  const config: OpenAICalculatorRuntimeConfig = {
+  const config: ConfigDTO = {
     apiKey,
     baseUrl: env.BASE_URL?.trim() || "https://api.synthetic.new/openai/v1",
     modelName: env.MODEL?.trim() || "hf:moonshotai/Kimi-K2.5",
     sessionRouting: {
       appName: "calculator",
-      userId: env.OPENAI_CALCULATOR_USER_ID?.trim() || env.USER_ID?.trim() || randomUUID(),
+      userId:
+        env.OPENAI_CALCULATOR_USER_ID?.trim() ||
+        env.USER_ID?.trim() ||
+        randomUUID(),
       sessionId:
         env.OPENAI_CALCULATOR_SESSION_ID?.trim() ||
         env.SESSION_ID?.trim() ||
@@ -58,9 +59,9 @@ function toTextOutput(output: unknown): string {
   return serializedOutput ?? "";
 }
 
-export async function runOpenAICalculatorAgent(
+export async function runExample(
   query: string,
-  config: OpenAICalculatorRuntimeConfig = resolveOpenAICalculatorRuntimeConfig(process.env),
+  config: ConfigDTO = getConfig(process.env),
 ): Promise<string> {
   const provider: OpenAIProvider = new OpenAIProvider({
     apiKey: config.apiKey,
@@ -91,11 +92,15 @@ export async function runOpenAICalculatorAgent(
       }
 
       const lowerExpression: string = rawExpression.toLowerCase();
-      const factorialPatternA: RegExp = /^(?:what\s+is\s+)?(\d+)\s+factorial\??$/;
+      const factorialPatternA: RegExp =
+        /^(?:what\s+is\s+)?(\d+)\s+factorial\??$/;
       const factorialPatternB: RegExp = /^factorial\s+of\s+(\d+)\??$/;
-      const factorialMatchA: RegExpMatchArray | null = lowerExpression.match(factorialPatternA);
-      const factorialMatchB: RegExpMatchArray | null = lowerExpression.match(factorialPatternB);
-      const factorialValueText: string = factorialMatchA?.[1] || factorialMatchB?.[1] || "";
+      const factorialMatchA: RegExpMatchArray | null =
+        lowerExpression.match(factorialPatternA);
+      const factorialMatchB: RegExpMatchArray | null =
+        lowerExpression.match(factorialPatternB);
+      const factorialValueText: string =
+        factorialMatchA?.[1] || factorialMatchB?.[1] || "";
 
       if (factorialValueText.length > 0) {
         const factorialValue: number = Number.parseInt(factorialValueText, 10);
@@ -124,7 +129,8 @@ export async function runOpenAICalculatorAgent(
       }
 
       const tokenRegex: RegExp = /\d+(?:\.\d+)?|[()+\-*/]/g;
-      const tokenMatches: Array<string> = mathExpression.match(tokenRegex) || [];
+      const tokenMatches: Array<string> =
+        mathExpression.match(tokenRegex) || [];
       if (tokenMatches.length === 0) {
         throw new Error("No arithmetic tokens found.");
       }
@@ -171,14 +177,16 @@ export async function runOpenAICalculatorAgent(
           outputQueue.push("0");
         }
 
-        const incomingPrecedence: number = token === "+" || token === "-" ? 1 : 2;
+        const incomingPrecedence: number =
+          token === "+" || token === "-" ? 1 : 2;
         while (operatorStack.length > 0) {
           const topOperator: string = operatorStack[operatorStack.length - 1]!;
           if (topOperator === "(") {
             break;
           }
 
-          const topPrecedence: number = topOperator === "+" || topOperator === "-" ? 1 : 2;
+          const topPrecedence: number =
+            topOperator === "+" || topOperator === "-" ? 1 : 2;
           if (topPrecedence < incomingPrecedence) {
             break;
           }
@@ -261,14 +269,10 @@ export async function runOpenAICalculatorAgent(
     sessionId: mappedSessionId,
   });
 
-  const runResult: unknown = await runner.run(
-    calculatorAgent,
-    query,
-    {
-      maxTurns: 4,
-      session,
-    },
-  );
+  const runResult: unknown = await runner.run(calculatorAgent, query, {
+    maxTurns: 4,
+    session,
+  });
   const finalOutput: unknown =
     typeof runResult === "object" && runResult !== null
       ? Reflect.get(runResult, "finalOutput")
@@ -276,38 +280,22 @@ export async function runOpenAICalculatorAgent(
 
   const finalText: string = toTextOutput(finalOutput).trim();
   if (finalText.length === 0) {
-    throw new Error("OpenAI calculator agent completed without a text response.");
+    throw new Error(
+      "OpenAI calculator agent completed without a text response.",
+    );
   }
 
   return finalText;
 }
 
-export async function runOpenAICalculatorExamples(
-  config: OpenAICalculatorRuntimeConfig = resolveOpenAICalculatorRuntimeConfig(process.env),
-): Promise<void> {
-  const firstResult: string = await runOpenAICalculatorAgent(
-    "Calculate the value of (5 + 7) * 3",
-    config,
-  );
-  console.log(`==> Final Agent Response: ${firstResult}`);
-
-  const secondResult: string = await runOpenAICalculatorAgent(
-    "What is 10 factorial?",
-    config,
-  );
-  console.log(`==> Final Agent Response: ${secondResult}`);
-}
-
-const isNodeTestContext: boolean = process.env.NODE_TEST_CONTEXT !== undefined;
-const cliPath: string | undefined = process.argv[1];
-if (!isNodeTestContext && cliPath) {
-  const cliUrl: string = pathToFileURL(resolve(process.cwd(), cliPath)).href;
-  if (cliUrl === import.meta.url) {
-    void runOpenAICalculatorExamples()
-      .catch((error: unknown): void => {
-        const message: string = error instanceof Error ? error.message : String(error);
-        console.error(message);
-        process.exitCode = 1;
-      });
-  }
-}
+/**
+ * main
+ * */
+const config: ConfigDTO = getConfig(process.env);
+const firstResult: string = await runExample(
+  "Calculate the value of (5 + 7) * 3",
+  config,
+);
+console.log(`==> Final Agent Response: ${firstResult}`);
+const secondResult: string = await runExample("What is 10 factorial?", config);
+console.log(`==> Final Agent Response: ${secondResult}`);
