@@ -6,8 +6,9 @@
 - Root `npm run typecheck`: PASS
 - Root `npm test`: PASS (`13` tests, `0` failures)
 - Root Python compile check via `./venv/bin/python -m py_compile`: PASS
-- `client` `npm run typecheck`: PASS
-- `server` `npm run typecheck`: PASS
+- Root `venv` dependency install: PASS (`./venv/bin/pip list` 확인)
+- Current workspace top-level runtime dirs: `01-prompts-chaining`, `02-routing-patterns`, `03-paralleization`, `04-reflection`, `05-tool`, `node_modules`, `venv`
+- Current workspace does not contain legacy `modules/`, `client/`, `server/` directories, so their smoke checks are not part of the current acceptance evidence
 
 ## Reflection Baseline
 
@@ -22,18 +23,7 @@
 - Decision:
   - Treat this as a pre-existing baseline failure, not a regression introduced by root promotion
 
-## Manual Cleanup Handoff
+## Current Layout Note
 
-The promotion intentionally did not delete the old `modules/` wrapper.
-
-### Remaining under `/home/jik/projects/adp/modules`
-
-- `modules/node_modules/`
-- `modules/venv/`
-
-### Suggested manual cleanup order
-
-1. Confirm root `node_modules/` and root `venv/` are the active environments.
-2. Remove `/home/jik/projects/adp/modules/node_modules/` if no rollback is needed.
-3. Remove `/home/jik/projects/adp/modules/venv/` if no rollback is needed.
-4. Remove the now-empty `/home/jik/projects/adp/modules/` directory.
+- The current workspace no longer has a legacy `modules/` wrapper directory.
+- Manual cleanup steps for `/home/jik/projects/adp/modules/*` are therefore not applicable in this workspace snapshot.
