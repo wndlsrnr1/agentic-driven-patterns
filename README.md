@@ -4,6 +4,7 @@ Practice project for prompt chaining using React(TypeScript) + NestJS.
 
 ## Structure
 
+- `01-prompts-chaining` ~ `05-tool`: top-level LLM workflow samples and experiments
 - `client`: React 19 + Vite + React Router + React Query + Axios
 - `server`: NestJS API (health + LLM chain)
 - `docker-compose.yml`: local split runtime for client/server
@@ -12,6 +13,10 @@ Practice project for prompt chaining using React(TypeScript) + NestJS.
 
 1. Copy `adp/server/src/config/.env.example` -> `adp/server/src/config/.env`
 2. (Optional) Copy `adp/.env.example` -> `adp/.env` for docker-compose port overrides
+3. (Modules samples) Create `adp/.env.modules` with:
+   - `API_KEY`
+   - `BASE_URL`
+   - `MODEL`
 
 Server required:
 
@@ -28,7 +33,16 @@ Client required:
 
 ## Local Run
 
-1. Server
+1. Modules samples
+
+```bash
+cd adp
+npm install
+npm run typecheck
+npm test
+```
+
+2. Server
 
 ```bash
 cd adp/server
@@ -36,7 +50,7 @@ npm install
 npm run dev
 ```
 
-2. Client
+3. Client
 
 ```bash
 cd adp/client

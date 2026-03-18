@@ -1,0 +1,36 @@
+{
+  "name": "modules",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p ./tsconfig.json",
+    "test": "node --test --experimental-strip-types ./01-prompts-chaining/*.spec.ts ./03-paralleization/*.spec.ts ./05-tool/practice/*.spec.ts ./05-tool/typescript/*.spec.ts",
+    "test:reflection-baseline": "node --test --experimental-strip-types ./04-reflection/example-code/typescript/*.spec.ts",
+    "routing:coordinator": "node --env-file=.env.modules --experimental-strip-types ./02-routing-patterns/coordinator-routing.workflow.ts",
+    "routing:rout2": "node --env-file=.env.modules --experimental-strip-types ./02-routing-patterns/rout2.ts",
+    "routing:rout3": "node --env-file=.env.modules --experimental-strip-types ./02-routing-patterns/coordinator-routing-openai.ts",
+    "parallelization:openai": "node --env-file=.env.modules --experimental-strip-types ./03-paralleization/parallelization_openai.ts",
+    "parallelization:google": "node --env-file=.env.modules --experimental-strip-types ./03-paralleization/paralleization_google.ts",
+    "parallelization:langchain": "node --env-file=.env.modules --experimental-strip-types ./03-paralleization/parallelization_langchain.ts",
+    "parallelization:tutorial": "node --experimental-strip-types ./03-paralleization/tutorial.ts",
+    "tutorial:google-adk": "node --experimental-strip-types ./03-paralleization/tutorial.google-adk.ts",
+    "tutorial:langchain": "node --experimental-strip-types ./03-paralleization/tutorial.langchain.ts",
+    "tutorial:openai-agents": "node --experimental-strip-types ./03-paralleization/tutorial.openai-agents.ts",
+    "tutorial:all": "node --experimental-strip-types ./03-paralleization/tutorial.ts"
+  },
+  "dependencies": {
+    "@google/adk": "^0.3.0",
+    "@google/genai": "^1.42.0",
+    "@langchain/core": "^0.3.79",
+    "@langchain/openai": "^0.6.11",
+    "@openai/agents": "^0.3.0",
+    "langchain": "^0.3.37",
+    "openai": "^6.4.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.0",
+    "typescript": "^5.9.2"
+  }
+}

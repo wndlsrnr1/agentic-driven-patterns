@@ -3,6 +3,7 @@ node_modules/
 
 # Environment
 .env
+.env.modules
 .env.local
 
 # Build outputs
@@ -22,9 +23,6 @@ npm-debug.log*
 # TypeScript incremental cache
 *.tsbuildinfo
 
-
-#example
-example
 
 # python
 venv

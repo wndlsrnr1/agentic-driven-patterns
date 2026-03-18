@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node"]
+  },
+  "include": [
+    "01-prompts-chaining/*.ts",
+    "02-routing-patterns/*.ts",
+    "03-paralleization/*.ts",
+    "04-reflection/example-code/typescript/*.ts",
+    "04-reflection/practice/*.ts",
+    "05-tool/practice/*.ts",
+    "05-tool/typescript/*.ts"
+  ]
+}

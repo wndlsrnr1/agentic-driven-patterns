@@ -37,8 +37,8 @@
 완료 보고 형식:
 - 어떤 라이브러리 주석을 어느 사용처에 추가했는지 file:line으로 보고
 - 아래 명령 실행 결과도 같이 보고
-  - cd modules && npm run typecheck
-  - cd modules && node --check --experimental-strip-types ./routing-patterns/coordinator-routing.workflow.example.ts
+  - npm run typecheck
+  - node --check --experimental-strip-types ./02-routing-patterns/coordinator-routing.workflow.ts
 
 핵심:
 - 특정 라이브러리 목록은 예시일 수 있으므로, 실제 코드에 등장한 모든 LangChain/외부 라이브러리를 커버하라.
