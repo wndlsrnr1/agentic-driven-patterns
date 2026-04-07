@@ -2,6 +2,9 @@
  * Run:
  * node --env-file=.env --experimental-strip-types ./06-planning-patterns/planning-pattern-openai.ts
  */
+
+// 이 lesson은 "먼저 계획을 만들고, 그 계획을 기준으로 결과를 쓴다"는 흐름을 보여줍니다.
+// 핵심은 agent 수가 아니라, 중간 산출물인 `plan`이 다음 단계 입력 계약이 된다는 점입니다.
 import {
   Agent,
   OpenAIProvider,
@@ -43,6 +46,8 @@ export type RunPlanningPatternOptions = {
 export function buildRuntimeConfig(
   env: NodeJS.ProcessEnv = process.env,
 ): RuntimeConfig {
+  // 실행 설정을 먼저 분리해 두면, agent 로직이 환경 변수 파싱 책임까지 떠안지 않습니다.
+  // 이 단계는 Runtime Layer에 해당하며, 이후 흐름은 이 설정만 믿고 내려갑니다.
   const apiKey: string | undefined = env.API_KEY?.trim();
   if (!apiKey) {
     throw new Error("API_KEY is missing.");
@@ -57,6 +62,8 @@ export function buildRuntimeConfig(
 }
 
 export function formatFinalReport(result: PlanningPatternResult): string {
+  // lesson의 마지막 단계는 사람이 읽기 쉬운 형태로 바꾸는 일입니다.
+  // 여기서는 JSON 대신 Plan / Summary 두 덩어리로 보여 줘 계획과 결과를 분리합니다.
   const report: string = [
     `Topic: ${result.topic}`,
     "",
@@ -73,6 +80,8 @@ export function formatFinalReport(result: PlanningPatternResult): string {
 export async function runPlanningPattern(
   options: RunPlanningPatternOptions = {},
 ): Promise<PlanningPatternResult> {
+  // 이 함수가 lesson의 본체입니다.
+  // top-down으로 보면 "설정 읽기 -> planner 실행 -> writer 실행 -> 결과 반환" 순서입니다.
   const config: RuntimeConfig =
     options.runtimeConfig ?? buildRuntimeConfig(process.env);
   const topic: string = options.topic?.trim() || DEFAULT_TOPIC;
@@ -103,6 +112,8 @@ export async function runPlanningPattern(
     tracingDisabled: true,
   });
 
+  // Planner는 주제를 어떤 순서로 다룰지 정리하는 역할만 맡습니다.
+  // summary까지 쓰지 않게 제한해야 planning pattern의 초점이 흐려지지 않습니다.
   const plannerAgent: Agent = new Agent({
     name: "PlannerAgent",
     model: config.modelName,
@@ -114,6 +125,8 @@ export async function runPlanningPattern(
     ].join("\n"),
   });
 
+  // Writer는 planner가 만든 구조를 받아 최종 문장으로 풀어쓰는 역할입니다.
+  // 즉, 이 lesson은 "두 agent가 협업한다"보다 "plan을 소비하는 단계가 분리된다"가 핵심입니다.
   const writerAgent: Agent = new Agent({
     name: "WriterAgent",
     model: config.modelName,
@@ -126,6 +139,8 @@ export async function runPlanningPattern(
     ].join("\n"),
   });
 
+  // 첫 번째 실행은 plan을 만드는 단계입니다.
+  // 결과 타입을 단정하지 않고 문자열로 정규화해 두면, 다음 단계 입력 계약이 안정적입니다.
   const plannerRunResult: { finalOutput: unknown } = (await runner.run(
     plannerAgent,
     [
@@ -141,6 +156,8 @@ export async function runPlanningPattern(
       ? plannerRunResult.finalOutput.trim()
       : JSON.stringify(plannerRunResult.finalOutput, null, 2).trim();
 
+  // 두 번째 실행은 writer가 실제 결과를 쓰는 단계입니다.
+  // writer는 독립적으로 쓰는 것이 아니라, 방금 만든 `plan`을 구조로 받아 사용합니다.
   const writerRunResult: { finalOutput: unknown } = (await runner.run(
     writerAgent,
     [
@@ -173,6 +190,8 @@ export async function runPlanningPattern(
 const isNodeTestContext: boolean = process.env.NODE_TEST_CONTEXT !== undefined;
 const cliPath: string | undefined = process.argv[1];
 if (!isNodeTestContext && cliPath) {
+  // 파일 하나가 학습용 예제이면서 테스트 가능한 모듈 역할도 같이 하도록
+  // 직접 실행된 경우에만 CLI 출력을 만들고, import 시에는 조용히 남겨 둡니다.
   const cliUrl: string = pathToFileURL(resolve(process.cwd(), cliPath)).href;
   if (cliUrl === import.meta.url) {
     void runPlanningPattern()

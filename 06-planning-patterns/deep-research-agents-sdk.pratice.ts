@@ -2,9 +2,6 @@
  * Run:
  * node --env-file=.env.openai-research --experimental-strip-types ./06-planning-patterns/deep-research-agents-sdk.ts
  */
-
-// 이 lesson은 내부 지식만으로 답하면 부족한 질문을 다룹니다.
-// 핵심은 "검색 가능한 조사형 agent"를 만들고, 최종 보고서와 intermediate step을 함께 읽는 것입니다.
 import {
   Agent,
   OpenAIProvider,
@@ -58,8 +55,6 @@ export type RunDeepResearchAgentOptions = {
 export function buildDeepResearchRuntimeConfig(
   env: NodeJS.ProcessEnv = process.env,
 ): DeepResearchRuntimeConfig {
-  // 조사형 agent는 질문을 어떻게 처리할지보다, 어떤 모델/자격으로 호출할지가 먼저 고정돼야 합니다.
-  // 그래서 실행 환경을 먼저 분리해 두고 이후 흐름은 이 설정만 사용합니다.
   const apiKey: string | undefined = env.OPENAI_API_KEY?.trim();
   if (!apiKey) {
     throw new Error("OPENAI_API_KEY is missing.");
@@ -75,8 +70,6 @@ export function buildDeepResearchRuntimeConfig(
 export function formatDeepResearchReport(
   result: DeepResearchResult,
 ): string {
-  // raw JSON은 기계가 보기엔 좋지만, lesson을 따라 읽는 사람에게는 너무 거칠 수 있습니다.
-  // 그래서 결과를 Report / Citations / Intermediate Steps 세 덩어리로 다시 묶습니다.
   const citationsText: string =
     result.citations.length === 0
       ? "- None"
@@ -117,8 +110,6 @@ export function formatDeepResearchReport(
 export async function runDeepResearchAgent(
   options: RunDeepResearchAgentOptions = {},
 ): Promise<DeepResearchResult> {
-  // 이 함수가 research lesson의 본체입니다.
-  // 흐름은 "설정 읽기 -> research agent 생성 -> tool 연결 -> 실행 -> 보고서/근거/과정 추출"입니다.
   const config: DeepResearchRuntimeConfig =
     options.runtimeConfig ?? buildDeepResearchRuntimeConfig(process.env);
   const query: string = options.query?.trim() || DEFAULT_QUERY;
@@ -152,8 +143,6 @@ export async function runDeepResearchAgent(
     tracingDisabled: true,
   });
 
-  // 이번 lesson은 planner/writer처럼 역할을 쪼개지 않습니다.
-  // 조사자 한 명이 검색하고 정리하고 보고서를 쓰는 구조로 보여 주는 것이 더 자연스럽습니다.
   const researchAgent: Agent = new Agent({
     name: "ResearchAgent",
     model: config.model,
@@ -165,8 +154,6 @@ export async function runDeepResearchAgent(
       "Return a well-structured final report.",
     ].join("\n"),
     tools: [
-      // 이 도구가 붙는 순간 agent는 "아는 척하는 모델"이 아니라
-      // "찾아보고 정리하는 모델"에 가까워집니다.
       webSearchTool({
         searchContextSize: "high",
       }),
@@ -181,8 +168,6 @@ export async function runDeepResearchAgent(
     },
   });
 
-  // 실행 결과는 하나로만 보지 않습니다.
-  // `finalOutput`은 사람이 읽을 최종 보고서이고, `newItems`에는 reasoning/tool call 같은 흔적이 남습니다.
   const runResult: { finalOutput: unknown; newItems: Array<unknown> } =
     (await runner.run(researchAgent, query, {
       maxTurns: 8,
@@ -200,8 +185,6 @@ export async function runDeepResearchAgent(
   const citations: Array<DeepResearchCitation> = [];
   const steps: Array<DeepResearchStep> = [];
 
-  // 이 lesson의 핵심은 답만 받는 것이 아니라 과정을 같이 읽는 데 있습니다.
-  // 그래서 newItems에서 reasoning, 검색 호출, 코드 실행, citation 단서를 따로 추출합니다.
   for (const item of runResult.newItems) {
     const rawItem: {
       type?: string;
@@ -306,8 +289,6 @@ export async function runDeepResearchAgent(
       continue;
     }
 
-    // assistant message 안의 output_text.annotations는
-    // 사람이 나중에 보고서를 검토할 때 쓰는 citation 메타데이터 역할을 합니다.
     for (const contentItem of rawItem.content) {
       if (
         contentItem.type !== "output_text" ||
@@ -352,8 +333,6 @@ export async function runDeepResearchAgent(
 const isNodeTestContext: boolean = process.env.NODE_TEST_CONTEXT !== undefined;
 const cliPath: string | undefined = process.argv[1];
 if (!isNodeTestContext && cliPath) {
-  // lesson 파일은 직접 실행해 볼 수 있어야 하고,
-  // 동시에 spec에서 import해도 부작용 없이 다뤄질 수 있어야 합니다.
   const cliUrl: string = pathToFileURL(resolve(process.cwd(), cliPath)).href;
   if (cliUrl === import.meta.url) {
     void runDeepResearchAgent()
