@@ -1,4 +1,0 @@
-interface:
-  display_name: "NestJS Controller Rules"
-  short_description: "Controller layer execution policy skill"
-  default_prompt: "Apply nestjs-controller-rules as an embedded policy skill and enforce its workflow and prohibitions on the task."

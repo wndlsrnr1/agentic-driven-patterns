@@ -1,4 +1,0 @@
-interface:
-  display_name: "NestJS Platform Rules"
-  short_description: "Platform execution policy rules skill"
-  default_prompt: "Apply nestjs-platform-rules as an embedded policy skill and enforce its workflow and prohibitions on the task."

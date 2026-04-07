@@ -1,4 +1,0 @@
-interface:
-  display_name: "NestJS Foundation Rules"
-  short_description: "NestJS backend baseline policy skill"
-  default_prompt: "Apply nestjs-foundation-rules as an embedded policy skill and enforce its workflow and prohibitions on the task."

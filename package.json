@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit -p ./tsconfig.json",
-    "test": "node --test --experimental-strip-types ./01-prompts-chaining/*.spec.ts ./03-paralleization/*.spec.ts ./05-tool/practice/*.spec.ts ./05-tool/typescript/*.spec.ts",
+    "test": "node --test --experimental-strip-types ./01-prompts-chaining/*.spec.ts ./03-paralleization/*.spec.ts ./05-tool/practice/*.spec.ts ./05-tool/typescript/*.spec.ts ./06-planning-patterns/*.spec.ts",
     "test:reflection-baseline": "node --test --experimental-strip-types ./04-reflection/example-code/typescript/*.spec.ts"
   },
   "dependencies": {

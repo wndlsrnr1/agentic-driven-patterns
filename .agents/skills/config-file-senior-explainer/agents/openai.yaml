@@ -1,4 +1,0 @@
-interface:
-  display_name: "Config File Senior Explainer"
-  short_description: "Explain config values with full architecture context"
-  default_prompt: "Use $config-file-senior-explainer to explain every config value and save the result to .sisyphus/docs/{name}.md."

@@ -1,9 +1,0 @@
----
-description: Global skill gate
-globs: ["**/*"]
-alwaysApply: true
----
-
-Before ANY response (including greetings), invoke skill `using-superpowers`.
-Then print first line exactly: `Using: using-superpowers`.
-If this line is missing, do not answer and retry internally.

@@ -1,4 +1,0 @@
-interface:
-  display_name: "NestJS Repository Rules"
-  short_description: "Repository layer execution policy skill"
-  default_prompt: "Apply nestjs-repository-rules as an embedded policy skill and enforce its workflow and prohibitions on the task."
